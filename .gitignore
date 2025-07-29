@@ -1,0 +1,7 @@
+/cmake-build-debug/
+*.user
+/cmake-build-debug-mingw/
+.idea
+.vs
+.vscode
+build

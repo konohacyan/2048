@@ -47,6 +47,8 @@ void Game::move_up()
 					{
 						this->move = true;
 						this->arr[index][i] += this->arr[j][i];
+                        score += this->arr[j][i];
+                        best = best < this->arr[index][i] ? this->arr[index][i] : best;
 						this->arr[j][i] = 0;
 						index = -1;
 					}
@@ -98,6 +100,8 @@ void Game::move_down()
 					{
 						this->move = true;
 						this->arr[index][i] += this->arr[j][i];
+                        score += this->arr[j][i];
+                        best = best < this->arr[index][i] ? this->arr[index][i] : best;
 						this->arr[j][i] = 0;
 						index = -1;
 					}
@@ -151,6 +155,8 @@ void Game::move_left()
 					{
 						this->move = true;
 						this->arr[i][index] += this->arr[i][j];
+                        this->score += this->arr[i][j];
+                        best = best < this->arr[i][index] ? this->arr[i][index] : best;
 						this->arr[i][j] = 0;
 						index = -1;
 					}
@@ -203,6 +209,8 @@ void Game::move_right()
 					{
 						this->move = true;
 						this->arr[i][index] += this->arr[i][j];
+                        score += this->arr[i][j];
+                        best = best < this->arr[i][index] ? this->arr[i][index] : best;
 						this->arr[i][j] = 0;
 						index = -1;
 					}
@@ -513,7 +521,7 @@ void Game::start_Game()
 		}
 
 		cout << "2048 Game Menu" << endl;
-		cout << "SCORE:" << this->score << "\tBEST:" << this->best << endl;
+		cout << "SCORE: " << this->score << "\nBEST: " << this->best << "\nMOVE COUNT: " << this->count << endl;
 		cout << " -------------------" << endl;
 		bool arr_full = true;
 		for (int i = 0; i < 4; i++)
@@ -559,36 +567,36 @@ void Game::start_Game()
 		{
 			if (_kbhit())
 			{
-				keywork = _getch();
-				switch (keywork)
-				{
-				case 65:
-				case 97:
-					//a
-					move_left();
-					key = false;
-					break;
-				case 68:
-				case 100:
-					//d
-					move_right();
-					key = false;
-					break;
-				case 83:
-				case 115:
-					//s
-					move_down();
-					key = false;
-					break;
-				case 87:
-				case 119:
-					//w
-					move_up();
-					key = false;
-					break;
-				default:
-					break;
-				}
+                keywork = _getch();
+                switch (keywork)
+                {
+                    case 65:
+                    case 97:
+                        //a
+                        move_left();
+                        key = false;
+                        break;
+                    case 68:
+                    case 100:
+                        //d
+                        move_right();
+                        key = false;
+                        break;
+                    case 83:
+                    case 115:
+                        //s
+                        move_down();
+                        key = false;
+                        break;
+                    case 87:
+                    case 119:
+                        //w
+                        move_up();
+                        key = false;
+                        break;
+                    default:
+                        break;
+                }
 			}
 		}
 	}
