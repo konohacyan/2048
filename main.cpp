@@ -16,7 +16,7 @@ int main()
         {
             case 1:
                 g.start_Game();
-                system("pause");
+                //system("pause");
                 system("cls");
                 break;
             case 2:

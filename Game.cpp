@@ -1,5 +1,5 @@
 #include"Game.h"
-
+#include "public_func.h"
 Game::Game()
 {
 	this->score = 0;
@@ -501,7 +501,8 @@ bool Game::size()
 }
 void Game::start_Game()
 {
-	while (true)
+    bool is_start = true;
+	while (is_start)
 	{
 		system("cls");
 		if (this->move)
@@ -522,6 +523,7 @@ void Game::start_Game()
 
 		cout << "2048 Game Menu" << endl;
 		cout << "SCORE: " << this->score << "\nBEST: " << this->best << "\nMOVE COUNT: " << this->count << endl;
+        cout << "BOOS Key: B" << "\tReturn Home: R" << endl;
 		cout << " -------------------" << endl;
 		bool arr_full = true;
 		for (int i = 0; i < 4; i++)
@@ -570,27 +572,38 @@ void Game::start_Game()
                 keywork = _getch();
                 switch (keywork)
                 {
-                    case 65:
-                    case 97:
-                        //a
+                    case 'B':
+                    case 'b':
+                    {
+                        // 最小化当前窗口
+                        HWND hwnd = GetForegroundWindow();
+                        ShowWindow(hwnd, SW_MINIMIZE);
+                        // 随机激活另一个窗口
+                        ActivateRandomWindow();
+                    }
+                        break;
+                    case 'r':
+                    case 'R':
+                        is_start = false;
+                        key = false;
+                        break;
+                    case 'a':
+                    case 'A':
                         move_left();
                         key = false;
                         break;
-                    case 68:
-                    case 100:
-                        //d
+                    case 'd':
+                    case 'D':
                         move_right();
                         key = false;
                         break;
-                    case 83:
-                    case 115:
-                        //s
+                    case 's':
+                    case 'S':
                         move_down();
                         key = false;
                         break;
-                    case 87:
-                    case 119:
-                        //w
+                    case 'w':
+                    case 'W':
                         move_up();
                         key = false;
                         break;
