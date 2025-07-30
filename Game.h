@@ -4,17 +4,6 @@
 #include<algorithm>
 using namespace std;
 
-typedef struct data_info_2048
-{
-    int score;
-    int best;
-    int count;
-    int width;
-    int height;
-    int arr[4][4];
-} DataInfo2048;
-
-
 class Game
 {
 public:
