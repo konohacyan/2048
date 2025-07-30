@@ -9,13 +9,13 @@ int main()
     //先生成两个2，之后每移动一下生成一个2，相同数字进行合并，合并成一个数得到这个数的分。直到所有格子都填满。
     while (true)
     {
-        g.show_Menu();
+        g.showMenu();
         int select;
         cin >> select;
         switch (select)
         {
             case 1:
-                g.start_Game();
+                g.startGame();
                 //system("pause");
                 system("cls");
                 break;
@@ -25,7 +25,7 @@ int main()
                 system("cls");
                 break;
             case 3:
-                g.exit_Game();
+                g.exitGame();
                 break;
             default:
                 cout << "Incorrect input!" << endl;
@@ -33,6 +33,7 @@ int main()
                 system("cls");
         }
     }
+
     system("pause");
     return 0;
 }

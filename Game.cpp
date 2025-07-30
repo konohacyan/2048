@@ -15,7 +15,7 @@ Game::Game()
 	this->count = 0;
 }
 
-void Game::show_Menu()
+void Game::showMenu()
 {
 	cout << " ------2048 Game Menu------" << endl;
 	cout << "|         1.Start          |" << endl;
@@ -25,14 +25,14 @@ void Game::show_Menu()
 	cout << "Enter your selection:" << endl;
 }
 
-void Game::exit_Game()
+void Game::exitGame()
 {
 	cout << "Welecom to play next time!" << endl;
 	system("pause");
 	exit(0);
 }
 
-void Game::move_up()
+void Game::moveUp()
 {
 	for (int i = 0; i < 4; i++)
 	{
@@ -49,6 +49,7 @@ void Game::move_up()
 						this->arr[index][i] += this->arr[j][i];
                         score += this->arr[j][i];
                         best = best < this->arr[index][i] ? this->arr[index][i] : best;
+                        count ++;
 						this->arr[j][i] = 0;
 						index = -1;
 					}
@@ -85,7 +86,7 @@ void Game::move_up()
 	}
 }
 
-void Game::move_down()
+void Game::moveDown()
 {
 	for (int i = 3; i >= 0; i--)
 	{
@@ -102,6 +103,7 @@ void Game::move_down()
 						this->arr[index][i] += this->arr[j][i];
                         score += this->arr[j][i];
                         best = best < this->arr[index][i] ? this->arr[index][i] : best;
+                        count ++;
 						this->arr[j][i] = 0;
 						index = -1;
 					}
@@ -138,7 +140,7 @@ void Game::move_down()
 	}
 }
 
-void Game::move_left()
+void Game::moveLeft()
 {
 	for (int i = 0; i < 4; i++)
 	{
@@ -157,6 +159,7 @@ void Game::move_left()
 						this->arr[i][index] += this->arr[i][j];
                         this->score += this->arr[i][j];
                         best = best < this->arr[i][index] ? this->arr[i][index] : best;
+                        count ++;
 						this->arr[i][j] = 0;
 						index = -1;
 					}
@@ -194,7 +197,7 @@ void Game::move_left()
 	}
 }
 
-void Game::move_right()
+void Game::moveRight()
 {
 	for (int i = 3; i >= 0; i--)
 	{
@@ -211,6 +214,7 @@ void Game::move_right()
 						this->arr[i][index] += this->arr[i][j];
                         score += this->arr[i][j];
                         best = best < this->arr[i][index] ? this->arr[i][index] : best;
+                        count ++;
 						this->arr[i][j] = 0;
 						index = -1;
 					}
@@ -247,7 +251,7 @@ void Game::move_right()
 	}
 }
 
-void Game::move_add(int key)
+void Game::moveAdd(int key)
 {
 	if(key==1)
 	{
@@ -499,7 +503,7 @@ bool Game::size()
 	}
 	return false;
 }
-void Game::start_Game()
+void Game::startGame()
 {
     bool is_start = true;
 	while (is_start)
@@ -522,35 +526,35 @@ void Game::start_Game()
 		}
 
 		cout << "2048 Game Menu" << endl;
-		cout << "SCORE: " << this->score << "\nBEST: " << this->best << "\nMOVE COUNT: " << this->count << endl;
+		cout << "SCORE: " << this->score << "\nBEST: " << this->best << "\nMERGE COUNT: " << this->count << endl;
         cout << "BOOS Key: B" << "\tReturn Home: R" << endl;
 		cout << " -------------------" << endl;
 		bool arr_full = true;
-		for (int i = 0; i < 4; i++)
+		for (auto & i : arr)
 		{
 			cout << "|";
-			for (int j = 0; j < 4; j++)
+			for (int j : i)
 			{
-				if (arr[i][j] == 0)
+				if (j == 0)
 				{
 					cout << "    ";
 					arr_full = false;
 				}
-				else if (arr[i][j] < 10)
+				else if (j < 10)
 				{
-					cout << arr[i][j] << "   ";
+					cout << j << "   ";
 				}
-				else if(arr[i][j] < 100)
+				else if(j < 100)
 				{
-					cout << arr[i][j] << "  ";
+					cout << j << "  ";
 				}
-				else if (arr[i][j] < 1000)
+				else if (j < 1000)
 				{
-					cout << arr[i][j] << " ";
+					cout << j << " ";
 				}
 				else
 				{
-					cout << arr[i][j];
+					cout << j;
 				}
 				cout << "|";
 			}
@@ -573,38 +577,38 @@ void Game::start_Game()
                 switch (keywork)
                 {
                     case 'B':
-                    case 'b':
+                    case 'b':   // 老板键
                     {
                         // 最小化当前窗口
                         HWND hwnd = GetForegroundWindow();
                         ShowWindow(hwnd, SW_MINIMIZE);
                         // 随机激活另一个窗口
-                        ActivateRandomWindow();
+                        tool::ActivateRandomWindow();
                     }
                         break;
                     case 'r':
-                    case 'R':
+                    case 'R':   // 返回首页
                         is_start = false;
                         key = false;
                         break;
                     case 'a':
                     case 'A':
-                        move_left();
+                        moveLeft();
                         key = false;
                         break;
                     case 'd':
                     case 'D':
-                        move_right();
+                        moveRight();
                         key = false;
                         break;
                     case 's':
                     case 'S':
-                        move_down();
+                        moveDown();
                         key = false;
                         break;
                     case 'w':
                     case 'W':
-                        move_up();
+                        moveUp();
                         key = false;
                         break;
                     default:
