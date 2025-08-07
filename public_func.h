@@ -1,19 +1,21 @@
 #ifndef INC_2048GAME_PUBLIC_FUNC_H
 #define INC_2048GAME_PUBLIC_FUNC_H
-#include <windows.h>
-#include <tlhelp32.h>
-#include <vector>
 #include <algorithm>
+#include <codecvt>
+#include <locale>
 #include <random>
 #include <shlobj.h>
 #include <string>
+#include <tlhelp32.h>
+#include <vector>
+#include <windows.h>
 
 
-namespace tool{
+namespace tool {
 
 
     // 检查指定进程是否在运行
-    bool IsProcessRunning(const wchar_t* processName)
+    bool isProcessRunning(const wchar_t* processName)
     {
         bool exists = false;
         PROCESSENTRY32 entry;
@@ -36,13 +38,13 @@ namespace tool{
     }
 
     // 启动指定程序
-    void StartProgram(const wchar_t* programPath)
+    void startProgram(const wchar_t* programPath)
     {
         ShellExecuteW(nullptr, L"open", programPath, nullptr, nullptr, SW_SHOWNORMAL);
     }
 
     // 获取所有顶层窗口的句柄
-    BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM lParam)
+    BOOL CALLBACK enumWindowsProc(HWND hwnd, LPARAM lParam)
     {
         auto* handles = reinterpret_cast<std::vector<HWND>*>(lParam);
 
@@ -58,10 +60,10 @@ namespace tool{
     }
 
     // 随机激活一个窗口
-    void ActivateRandomWindow()
+    void activateRandomWindow()
     {
         std::vector<HWND> windowHandles;
-        EnumWindows(EnumWindowsProc, reinterpret_cast<LPARAM>(&windowHandles));
+        EnumWindows(enumWindowsProc, reinterpret_cast<LPARAM>(&windowHandles));
 
         if (!windowHandles.empty())
         {
@@ -81,7 +83,7 @@ namespace tool{
     }
 
     // 获取缓存路径
-    std::wstring GetAppCachePath()
+    std::wstring getAppCachePath()
     {
         PWSTR path = nullptr;
         if (SUCCEEDED(SHGetKnownFolderPath(FOLDERID_LocalAppData, KF_FLAG_CREATE, nullptr, &path))) {
@@ -124,7 +126,21 @@ namespace tool{
         return L"";
     }
 
+    // 辅助函数：对数据进行XOR加密/解密
+    void xorEncryptDecrypt(BYTE* data, size_t size) {
+        const BYTE* key = reinterpret_cast<const BYTE*>(ENCRYPTION_KEY);
+        size_t keyLength = wcslen(ENCRYPTION_KEY) * sizeof(wchar_t);
 
+        for (size_t i = 0; i < size; ++i) {
+            data[i] ^= key[i % keyLength];
+        }
+    }
+
+    // 宽字符串转多字节字符串(C++11方式)
+    std::string wstring_to_string(const std::wstring& wstr) {
+        std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
+        return converter.to_bytes(wstr);
+    }
 }
 
 #endif//INC_2048GAME_PUBLIC_FUNC_H

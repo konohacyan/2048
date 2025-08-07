@@ -4,6 +4,8 @@
 #include <conio.h>
 #include <algorithm>
 using namespace std;
+// 简单的XOR加密密钥
+const wchar_t* ENCRYPTION_KEY = L"2048GameEncryptionKey";
 
 typedef struct data_info_2048
 {
