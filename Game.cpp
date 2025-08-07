@@ -2,17 +2,17 @@
 #include "public_func.h"
 Game::Game()
 {
-	this->score = 0;
-	this->best = 0;
+	dataInfo.score = 0;
+	dataInfo.best = 0;
 	for(int i=0;i<4;i++)
 	{
 		for (int j = 0; j < 4; j++)
 		{
-			this->arr[i][j] = 0;
+			dataInfo.arr[i][j] = 0;
 		}
 	}
-	this->move = true;
-	this->count = 0;
+	move = true;
+	dataInfo.count = 0;
 }
 
 void Game::showMenu()
@@ -34,23 +34,23 @@ void Game::exitGame()
 
 void Game::moveUp()
 {
-	for (int i = 0; i < 4; i++)
+	for (int i = 0; i < dataInfo.width; i++)
 	{
 		int index = -1;
-		for (int j = 0; j < 4; j++)
+		for (int j = 0; dataInfo.height < 4; j++)
 		{
-			if (this->arr[j][i] != 0)
+			if (dataInfo.arr[j][i] != 0)
 			{
 				if (index != -1)
 				{
-					if (this->arr[index][i] == this->arr[j][i])
+					if (dataInfo.arr[index][i] == dataInfo.arr[j][i])
 					{
-						this->move = true;
-						this->arr[index][i] += this->arr[j][i];
-                        score += this->arr[j][i];
-                        best = best < this->arr[index][i] ? this->arr[index][i] : best;
-                        count ++;
-						this->arr[j][i] = 0;
+						move = true;
+                        dataInfo.arr[index][i] += dataInfo.arr[j][i];
+                        dataInfo.score += dataInfo.arr[j][i];
+                        dataInfo.best = dataInfo.best < dataInfo.arr[index][i] ? dataInfo.arr[index][i] : dataInfo.best;
+                        dataInfo.count ++;
+                        dataInfo.arr[j][i] = 0;
 						index = -1;
 					}
 					else
@@ -66,15 +66,15 @@ void Game::moveUp()
 		}
 
 		int row = 0;
-		for (int j = 1; j < 4; j++)
+		for (int j = 1; j < dataInfo.height; j++)
 		{
-			if (this->arr[row][i] == 0)
+			if (dataInfo.arr[row][i] == 0)
 			{
-				if (this->arr[j][i] != 0)
+				if (dataInfo.arr[j][i] != 0)
 				{
-					this->move = true;
-					arr[row][i] = arr[j][i];
-					arr[j][i] = 0;
+					move = true;
+                    dataInfo.arr[row][i] = dataInfo.arr[j][i];
+                    dataInfo.arr[j][i] = 0;
 					row++;
 				}
 			}
@@ -88,23 +88,23 @@ void Game::moveUp()
 
 void Game::moveDown()
 {
-	for (int i = 3; i >= 0; i--)
+	for (int i = dataInfo.width - 1 ; i >= 0; i--)
 	{
 		int index = -1;
-		for (int j = 3; j >= 0; j--)
+		for (int j = dataInfo.height - 1; j >= 0; j--)
 		{
-			if (this->arr[j][i] != 0)
+			if (dataInfo.arr[j][i] != 0)
 			{
 				if (index != -1)
 				{
-					if (this->arr[index][i] == this->arr[j][i])
+					if (dataInfo.arr[index][i] == dataInfo.arr[j][i])
 					{
-						this->move = true;
-						this->arr[index][i] += this->arr[j][i];
-                        score += this->arr[j][i];
-                        best = best < this->arr[index][i] ? this->arr[index][i] : best;
-                        count ++;
-						this->arr[j][i] = 0;
+						move = true;
+                        dataInfo.arr[index][i] += dataInfo.arr[j][i];
+                        dataInfo.score += dataInfo.arr[j][i];
+                        dataInfo.best = dataInfo.best < dataInfo.arr[index][i] ? dataInfo.arr[index][i] : dataInfo.best;
+                        dataInfo.count ++;
+                        dataInfo.arr[j][i] = 0;
 						index = -1;
 					}
 					else
@@ -122,13 +122,13 @@ void Game::moveDown()
 		int row = 3;
 		for (int j = 2; j >= 0; j--)
 		{
-			if (this->arr[row][i] == 0)
+			if (dataInfo.arr[row][i] == 0)
 			{
-				if (this->arr[j][i] != 0)
+				if (dataInfo.arr[j][i] != 0)
 				{
-					this->move = true;
-					arr[row][i] = arr[j][i];
-					arr[j][i] = 0;
+					move = true;
+                    dataInfo.arr[row][i] = dataInfo.arr[j][i];
+                    dataInfo.arr[j][i] = 0;
 					row--;
 				}
 			}
@@ -148,19 +148,19 @@ void Game::moveLeft()
 		int index = -1;
 		for (int j = 0; j < 4; j++)
 		{
-			if (this->arr[i][j] != 0)
+			if (dataInfo.arr[i][j] != 0)
 			{
 				if (index != -1)
 				{
 					//记录非0数字下标到index，再看下一个数字是否相等，相等就加到index的数字里，并把index初始化。
-					if (this->arr[i][index] == this->arr[i][j])
+					if (dataInfo.arr[i][index] == dataInfo.arr[i][j])
 					{
-						this->move = true;
-						this->arr[i][index] += this->arr[i][j];
-                        this->score += this->arr[i][j];
-                        best = best < this->arr[i][index] ? this->arr[i][index] : best;
-                        count ++;
-						this->arr[i][j] = 0;
+						move = true;
+						dataInfo.arr[i][index] += dataInfo.arr[i][j];
+                        dataInfo.score += dataInfo.arr[i][j];
+                        dataInfo.best = dataInfo.best < dataInfo.arr[i][index] ? dataInfo.arr[i][index] : dataInfo.best;
+                        dataInfo.count ++;
+						dataInfo.arr[i][j] = 0;
 						index = -1;
 					}
 					//如果不相等则index修改为新的数字的下标
@@ -179,13 +179,13 @@ void Game::moveLeft()
 		int row = 0;
 		for (int j = 1; j < 4; j++)
 		{
-			if (this->arr[i][row] == 0)
+			if (dataInfo.arr[i][row] == 0)
 			{
-				if (this->arr[i][j] != 0)
+				if (dataInfo.arr[i][j] != 0)
 				{
-					this->move = true;
-					arr[i][row] = arr[i][j];
-					arr[i][j] = 0;
+					move = true;
+                    dataInfo.arr[i][row] = dataInfo.arr[i][j];
+                    dataInfo.arr[i][j] = 0;
 					row++;
 				}
 			}
@@ -204,18 +204,18 @@ void Game::moveRight()
 		int index = -1;
 		for (int j = 3; j >= 0; j--)
 		{
-			if (this->arr[i][j] != 0)
+			if (dataInfo.arr[i][j] != 0)
 			{
 				if (index != -1)
 				{
-					if (this->arr[i][index] == this->arr[i][j])
+					if (dataInfo.arr[i][index] == dataInfo.arr[i][j])
 					{
-						this->move = true;
-						this->arr[i][index] += this->arr[i][j];
-                        score += this->arr[i][j];
-                        best = best < this->arr[i][index] ? this->arr[i][index] : best;
-                        count ++;
-						this->arr[i][j] = 0;
+						move = true;
+						dataInfo.arr[i][index] += dataInfo.arr[i][j];
+                        dataInfo.score += dataInfo.arr[i][j];
+                        dataInfo.best = dataInfo.best < dataInfo.arr[i][index] ? dataInfo.arr[i][index] : dataInfo.best;
+                        dataInfo.count ++;
+						dataInfo.arr[i][j] = 0;
 						index = -1;
 					}
 					else
@@ -233,13 +233,13 @@ void Game::moveRight()
 		int row = 3;
 		for (int j = 2; j >= 0; j--)
 		{
-			if (this->arr[i][row] == 0)
+			if (dataInfo.arr[i][row] == 0)
 			{
-				if (this->arr[i][j] != 0)
+				if (dataInfo.arr[i][j] != 0)
 				{
-					this->move = true;
-					arr[i][row] = arr[i][j];
-					arr[i][j] = 0;
+					move = true;
+                    dataInfo.arr[i][row] = dataInfo.arr[i][j];
+                    dataInfo.arr[i][j] = 0;
 					row--;
 				}
 			}
@@ -261,16 +261,16 @@ void Game::moveAdd(int key)
 			int index = -1;
 			for (int j = 0; j < 4; j++)
 			{
-				if (this->arr[i][j] != 0)
+				if (dataInfo.arr[i][j] != 0)
 				{
 					if (index != -1)
 					{
 						//记录非0数字下标到index，再看下一个数字是否相等，相等就加到index的数字里，并把index初始化。
-						if (this->arr[i][index] == this->arr[i][j])
+						if (dataInfo.arr[i][index] == dataInfo.arr[i][j])
 						{
-							this->move = true;
-							this->arr[i][index] += this->arr[i][j];
-							this->arr[i][j] = 0;
+							move = true;
+							dataInfo.arr[i][index] += dataInfo.arr[i][j];
+							dataInfo.arr[i][j] = 0;
 							index = -1;
 						}
 						//如果不相等则index修改为新的数字的下标
@@ -289,13 +289,13 @@ void Game::moveAdd(int key)
 			int row = 0;
 			for (int j = 1; j < 4; j++)
 			{
-				if (this->arr[i][row] == 0)
+				if (dataInfo.arr[i][row] == 0)
 				{
-					if (this->arr[i][j] != 0)
+					if (dataInfo.arr[i][j] != 0)
 					{
-						this->move = true;
-						arr[i][row] = arr[i][j];
-						arr[i][j] = 0;
+						move = true;
+                        dataInfo.arr[i][row] = dataInfo.arr[i][j];
+                        dataInfo.arr[i][j] = 0;
 						row++;
 					}
 				}
@@ -315,15 +315,15 @@ void Game::moveAdd(int key)
 			int index = -1;
 			for (int j = 3; j >= 0; j--)
 			{
-				if (this->arr[i][j] != 0)
+				if (dataInfo.arr[i][j] != 0)
 				{
 					if (index != -1)
 					{
-						if (this->arr[i][index] == this->arr[i][j])
+						if (dataInfo.arr[i][index] == dataInfo.arr[i][j])
 						{
-							this->move = true;
-							this->arr[i][index] += this->arr[i][j];
-							this->arr[i][j] = 0;
+							move = true;
+							dataInfo.arr[i][index] += dataInfo.arr[i][j];
+							dataInfo.arr[i][j] = 0;
 							index = -1;
 						}
 						else
@@ -341,13 +341,13 @@ void Game::moveAdd(int key)
 			int row = 3;
 			for (int j = 2; j >= 0; j--)
 			{
-				if (this->arr[i][row] == 0)
+				if (dataInfo.arr[i][row] == 0)
 				{
-					if (this->arr[i][j] != 0)
+					if (dataInfo.arr[i][j] != 0)
 					{
-						this->move = true;
-						arr[i][row] = arr[i][j];
-						arr[i][j] = 0;
+						move = true;
+                        dataInfo.arr[i][row] = dataInfo.arr[i][j];
+                        dataInfo.arr[i][j] = 0;
 						row--;
 					}
 				}
@@ -367,15 +367,15 @@ void Game::moveAdd(int key)
 			int index = -1;
 			for (int j = 3; j >= 0; j--)
 			{
-				if (this->arr[j][i] != 0)
+				if (dataInfo.arr[j][i] != 0)
 				{
 					if (index != -1)
 					{
-						if (this->arr[index][i] == this->arr[j][i])
+						if (dataInfo.arr[index][i] == dataInfo.arr[j][i])
 						{
-							this->move = true;
-							this->arr[index][i] += this->arr[j][i];
-							this->arr[j][i] = 0;
+							move = true;
+							dataInfo.arr[index][i] += dataInfo.arr[j][i];
+							dataInfo.arr[j][i] = 0;
 							index = -1;
 						}
 						else
@@ -393,13 +393,13 @@ void Game::moveAdd(int key)
 			int row = 3;
 			for (int j = 2; j >= 0; j--)
 			{
-				if (this->arr[row][i] == 0)
+				if (dataInfo.arr[row][i] == 0)
 				{
-					if (this->arr[j][i] != 0)
+					if (dataInfo.arr[j][i] != 0)
 					{
-						this->move = true;
-						arr[row][i] = arr[j][i];
-						arr[j][i] = 0;
+						move = true;
+                        dataInfo.arr[row][i] = dataInfo.arr[j][i];
+                        dataInfo.arr[j][i] = 0;
 						row--;
 					}
 				}
@@ -418,15 +418,15 @@ void Game::moveAdd(int key)
 			int index = -1;
 			for (int j = 0; j < 4; j++)
 			{
-				if (this->arr[j][i] != 0)
+				if (dataInfo.arr[j][i] != 0)
 				{
 					if (index != -1)
 					{
-						if (this->arr[index][i] == this->arr[j][i])
+						if (dataInfo.arr[index][i] == dataInfo.arr[j][i])
 						{
-							this->move = true;
-							this->arr[index][i] += this->arr[j][i];
-							this->arr[j][i] = 0;
+							move = true;
+							dataInfo.arr[index][i] += dataInfo.arr[j][i];
+							dataInfo.arr[j][i] = 0;
 							index = -1;
 						}
 						else
@@ -444,13 +444,13 @@ void Game::moveAdd(int key)
 			int row = 0;
 			for (int j = 1; j < 4; j++)
 			{
-				if (this->arr[row][i] == 0)
+				if (dataInfo.arr[row][i] == 0)
 				{
-					if (this->arr[j][i] != 0)
+					if (dataInfo.arr[j][i] != 0)
 					{
-						this->move = true;
-						arr[row][i] = arr[j][i];
-						arr[j][i] = 0;
+						move = true;
+                        dataInfo.arr[row][i] = dataInfo.arr[j][i];
+                        dataInfo.arr[j][i] = 0;
 						row++;
 					}
 				}
@@ -479,14 +479,15 @@ bool Game::size()
 			{
 				if (i != 3)
 				{
-					if (arr[i][j] == arr[i][j + 1] || arr[i][j] == arr[i + 1][j] || arr[i][j] == 0 || arr[i][j + 1] == 0 || arr[i + 1][j] == 0)
+					if (dataInfo.arr[i][j] == dataInfo.arr[i][j + 1] || dataInfo.arr[i][j] == dataInfo.arr[i + 1][j]
+                        || dataInfo.arr[i][j] == 0 || dataInfo.arr[i][j + 1] == 0 || dataInfo.arr[i + 1][j] == 0)
 					{
 						return true;
 					}
 				}
 				else
 				{
-					if (arr[i][j] == arr[i][j + 1])
+					if (dataInfo.arr[i][j] == dataInfo.arr[i][j + 1])
 					{
 						return true;
 					}
@@ -494,7 +495,7 @@ bool Game::size()
 			}
 			else
 			{
-				if (arr[i][j] == arr[i + 1][j])
+				if (dataInfo.arr[i][j] == dataInfo.arr[i + 1][j])
 				{
 					return true;
 				}
@@ -509,57 +510,57 @@ void Game::startGame()
 	while (is_start)
 	{
 		system("cls");
-		if (this->move)
+		if (move)
 		{
 			
 			while (true)
 			{
 				int ran_i = rand() % 3;
 				int ran_j = rand() % 3;
-				if (this->arr[ran_i][ran_j] == 0)
+				if (dataInfo.arr[ran_i][ran_j] == 0)
 				{
-					arr[ran_i][ran_j] = 2;
-					this->move = false;
+                    dataInfo.arr[ran_i][ran_j] = 2;
+					move = false;
 					break;
 				}
 			}
 		}
 
 		cout << "2048 Game Menu" << endl;
-		cout << "SCORE: " << this->score << "\nBEST: " << this->best << "\nMERGE COUNT: " << this->count << endl;
+		cout << "SCORE: " << dataInfo.score << "\nBEST: " << dataInfo.best << "\nMERGE COUNT: " << dataInfo.count << endl;
         cout << "BOOS Key: B" << "\tReturn Home: R" << endl;
 		cout << " -------------------" << endl;
 		bool arr_full = true;
-		for (auto & i : arr)
-		{
-			cout << "|";
-			for (int j : i)
-			{
-				if (j == 0)
-				{
-					cout << "    ";
-					arr_full = false;
-				}
-				else if (j < 10)
-				{
-					cout << j << "   ";
-				}
-				else if(j < 100)
-				{
-					cout << j << "  ";
-				}
-				else if (j < 1000)
-				{
-					cout << j << " ";
-				}
-				else
-				{
-					cout << j;
-				}
-				cout << "|";
-			}
-			cout << endl<<" -------------------" << endl;
-		}
+        for (int i = 0; i < dataInfo.width; i++)
+        {
+            cout << "|";
+            for (int j = 0; j < dataInfo.height; j++)
+            {
+                if (dataInfo.arr[i][j] == 0)
+                {
+                    cout << "    ";
+                    arr_full = false;
+                }
+                else if (dataInfo.arr[i][j] < 10)
+                {
+                    cout << dataInfo.arr[i][j] << "   ";
+                }
+                else if(dataInfo.arr[i][j] < 100)
+                {
+                    cout << dataInfo.arr[i][j] << "  ";
+                }
+                else if (dataInfo.arr[i][j] < 1000)
+                {
+                    cout << dataInfo.arr[i][j] << " ";
+                }
+                else
+                {
+                    cout << dataInfo.arr[i][j];
+                }
+                cout << "|";
+            }
+            cout << endl<<" -------------------" << endl;
+        }
 		if (arr_full)
 		{
 			cout << "Game Over!" << endl;
