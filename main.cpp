@@ -6,12 +6,21 @@ int main()
 {
     //srand((unsigned int)time(NULL));
     Game g;
-    //ÏÈÉú³ÉÁ½¸ö2£¬Ö®ºóÃ¿ÒÆ¶¯Ò»ÏÂÉú³ÉÒ»¸ö2£¬ÏàÍ¬Êý×Ö½øÐÐºÏ²¢£¬ºÏ²¢³ÉÒ»¸öÊýµÃµ½Õâ¸öÊýµÄ·Ö¡£Ö±µ½ËùÓÐ¸ñ×Ó¶¼ÌîÂú¡£
+    //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½2ï¿½ï¿½Ö®ï¿½ï¿½Ã¿ï¿½Æ¶ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½2ï¿½ï¿½ï¿½ï¿½Í¬ï¿½ï¿½ï¿½Ö½ï¿½ï¿½ÐºÏ²ï¿½ï¿½ï¿½ï¿½Ï²ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½Ãµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä·Ö¡ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ï¿½Ð¸ï¿½ï¿½Ó¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     while (true)
     {
         g.showMenu();
         int select;
         cin >> select;
+        if (cin.fail())
+        {
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            cout << "Incorrect input!" << endl;
+            system("pause");
+            system("cls");
+            continue;
+        }
         switch (select)
         {
             case 1:
@@ -20,7 +29,7 @@ int main()
                 system("cls");
                 break;
             case 2:
-                cout << "´ý¿ª·¢" << endl;
+                cout << "ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½" << endl;
                 system("pause");
                 system("cls");
                 break;
