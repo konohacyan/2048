@@ -382,6 +382,16 @@ void Game::startGame()
                 {
                     std::cout << dataInfo.arr[i][j];
                 }
+                if(arr_full)
+                {
+                    if(i >0 && dataInfo.arr[i][j] == dataInfo.arr[i-1][j] || 
+                        (j > 0 && dataInfo.arr[i][j] == dataInfo.arr[i][j-1]) || 
+                        (i < dataInfo.height - 1 && dataInfo.arr[i][j] == dataInfo.arr[i+1][j]) ||
+                        (j < dataInfo.width - 1 && dataInfo.arr[i][j] == dataInfo.arr[i][j+1]))
+                    {
+                        arr_full = false;
+                    }
+                }
                 std::cout << "|";
             }
             std::cout << std::endl
