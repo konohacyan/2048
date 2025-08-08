@@ -44,6 +44,7 @@ void Game::exitGame()
 
 void Game::moveUp()
 {
+    bool bMoveAdd = true;
     for (int i = 0; i < dataInfo.width; i++)
     {
         int index = -1;
@@ -59,7 +60,11 @@ void Game::moveUp()
                         dataInfo.arr[index][i] += dataInfo.arr[j][i];
                         dataInfo.score += dataInfo.arr[j][i];
                         dataInfo.best = (((dataInfo.best) > (dataInfo.arr[index][i])) ? (dataInfo.best) : (dataInfo.arr[index][i]));
-                        dataInfo.count++;
+                        if(bMoveAdd)
+                        {
+                            dataInfo.count++;
+                            bMoveAdd = false;
+                        }
                         dataInfo.arr[j][i] = 0;
                         index = -1;
                     }
@@ -82,6 +87,11 @@ void Game::moveUp()
             {
                 if (dataInfo.arr[j][i] != 0)
                 {
+                    if(bMoveAdd)
+                    {
+                        dataInfo.count++;
+                        bMoveAdd = false;
+                    }
                     move = true;
                     dataInfo.arr[row][i] = dataInfo.arr[j][i];
                     dataInfo.arr[j][i] = 0;
@@ -98,6 +108,7 @@ void Game::moveUp()
 
 void Game::moveDown()
 {
+    bool bMoveAdd = true;
     for (int i = 0; i < dataInfo.width; i++)
     {
         int index = -1;
@@ -113,7 +124,11 @@ void Game::moveDown()
                         dataInfo.arr[index][i] += dataInfo.arr[j][i];
                         dataInfo.score += dataInfo.arr[j][i];
                         dataInfo.best = (((dataInfo.best) > (dataInfo.arr[index][i])) ? (dataInfo.best) : (dataInfo.arr[index][i]));
-                        dataInfo.count++;
+                        if(bMoveAdd)
+                        {
+                            dataInfo.count++;
+                            bMoveAdd = false;
+                        }
                         dataInfo.arr[j][i] = 0;
                         index = -1;
                     }
@@ -136,6 +151,11 @@ void Game::moveDown()
             {
                 if (dataInfo.arr[j][i] != 0)
                 {
+                    if(bMoveAdd)
+                    {
+                        dataInfo.count++;
+                        bMoveAdd = false;
+                    }
                     move = true;
                     dataInfo.arr[row][i] = dataInfo.arr[j][i];
                     dataInfo.arr[j][i] = 0;
@@ -152,6 +172,7 @@ void Game::moveDown()
 
 void Game::moveLeft()
 {
+    bool bMoveAdd = true;
     for (int i = 0; i < dataInfo.height; i++)
     {
         int index = -1;
@@ -167,7 +188,11 @@ void Game::moveLeft()
                         dataInfo.arr[i][index] += dataInfo.arr[i][j];
                         dataInfo.score += dataInfo.arr[i][j];
                         dataInfo.best = (((dataInfo.best) > (dataInfo.arr[i][index])) ? (dataInfo.best) : (dataInfo.arr[i][index]));
-                        dataInfo.count++;
+                        if(bMoveAdd)
+                        {
+                            dataInfo.count++;
+                            bMoveAdd = false;
+                        }
                         dataInfo.arr[i][j] = 0;
                         index = -1;
                     }
@@ -189,6 +214,11 @@ void Game::moveLeft()
             {
                 if (dataInfo.arr[i][j] != 0)
                 {
+                    if(bMoveAdd)
+                    {
+                        dataInfo.count++;
+                        bMoveAdd = false;
+                    }
                     move = true;
                     dataInfo.arr[i][row] = dataInfo.arr[i][j];
                     dataInfo.arr[i][j] = 0;
@@ -205,6 +235,7 @@ void Game::moveLeft()
 
 void Game::moveRight()
 {
+    bool bMoveAdd = true;
     for (int i = 0; i < dataInfo.height; i++)
     {
         int index = -1;
@@ -220,7 +251,11 @@ void Game::moveRight()
                         dataInfo.arr[i][index] += dataInfo.arr[i][j];
                         dataInfo.score += dataInfo.arr[i][j];
                         dataInfo.best = (((dataInfo.best) > (dataInfo.arr[i][index])) ? (dataInfo.best) : (dataInfo.arr[i][index]));
-                        dataInfo.count++;
+                        if(bMoveAdd)
+                        {
+                            dataInfo.count++;
+                            bMoveAdd = false;
+                        }
                         dataInfo.arr[i][j] = 0;
                         index = -1;
                     }
@@ -242,6 +277,11 @@ void Game::moveRight()
             {
                 if (dataInfo.arr[i][j] != 0)
                 {
+                    if(bMoveAdd)
+                    {
+                        dataInfo.count++;
+                        bMoveAdd = false;
+                    }
                     move = true;
                     dataInfo.arr[i][row] = dataInfo.arr[i][j];
                     dataInfo.arr[i][j] = 0;
