@@ -1,11 +1,16 @@
 #ifndef INC_2048GAME_PUBLIC_DEF_H
 #define INC_2048GAME_PUBLIC_DEF_H
+#define _HAS_STD_BYTE 0     // 禁用std::byte 在包含任何Windows头文件之前添加：
 #include <iostream>
-#include <conio.h>
 #include <algorithm>
+// 以下是 windows 库
+#include <conio.h>
+
 using namespace std;
+
 // 简单的XOR加密密钥
-const wchar_t* ENCRYPTION_KEY = L"2048GameEncryptionKey";
+extern const string ENCRYPTION_KEY;
+extern const string SAVE_FILE_NAME;
 
 typedef struct data_info_2048
 {
@@ -85,9 +90,6 @@ typedef struct data_info_2048
             cout << endl;
         }
     }
-
-
 } DataInfo2048;
 
-
-#endif//INC_2048GAME_PUBLIC_DEF_H
+#endif // INC_2048GAME_PUBLIC_DEF_H

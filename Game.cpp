@@ -1,15 +1,21 @@
-#include"Game.h"
+#include "Game.h"
 #include "public_func.h"
-#include <fstream>
 #include <filesystem>
+#include <fstream>
+#include <iostream>
+#include <random>
+// ‰ª•‰∏ãÊòØ windows Â∫ì
+
+
 using namespace tool;
+
 Game::Game()
 {
     dataInfo.score = 0;
     dataInfo.best = 0;
-    for(int i=0;i<4;i++)
+    for (int i = 0; i < dataInfo.height; i++)
     {
-        for (int j = 0; j < 4; j++)
+        for (int j = 0; j < dataInfo.width; j++)
         {
             dataInfo.arr[i][j] = 0;
         }
@@ -20,18 +26,19 @@ Game::Game()
 
 void Game::showMenu()
 {
-    cout << " ------2048 Game Menu------" << endl;
-    cout << "|         1.Start          |" << endl;
-    cout << "|         2.Ranking        |" << endl;
-    cout << "|         3.Exit           |" << endl;
-    cout << " --------------------------" << endl;
-    cout << "Enter your selection:" << endl;
+    std::cout << " ------2048 Game Menu------" << std::endl;
+    std::cout << "|         1.Start          |" << std::endl;
+    std::cout << "|         2.Ranking        |" << std::endl;
+    std::cout << "|         3.Exit           |" << std::endl;
+    std::cout << " --------------------------" << std::endl;
+    std::cout << "Enter your selection:" << std::endl;
 }
 
 void Game::exitGame()
 {
-    cout << "Welecom to play next time!" << endl;
-    system("pause");
+    std::cout << "Welecom to play next time!" << std::endl;
+    std::cout << "Press Enter to exit..." << std::endl;
+    std::cin.get();
     exit(0);
 }
 
@@ -40,7 +47,7 @@ void Game::moveUp()
     for (int i = 0; i < dataInfo.width; i++)
     {
         int index = -1;
-        for (int j = 0; dataInfo.height < 4; j++)
+        for (int j = 0; j < dataInfo.height; j++)
         {
             if (dataInfo.arr[j][i] != 0)
             {
@@ -51,8 +58,8 @@ void Game::moveUp()
                         move = true;
                         dataInfo.arr[index][i] += dataInfo.arr[j][i];
                         dataInfo.score += dataInfo.arr[j][i];
-                        dataInfo.best = dataInfo.best < dataInfo.arr[index][i] ? dataInfo.arr[index][i] : dataInfo.best;
-                        dataInfo.count ++;
+                        dataInfo.best = (((dataInfo.best) > (dataInfo.arr[index][i])) ? (dataInfo.best) : (dataInfo.arr[index][i]));
+                        dataInfo.count++;
                         dataInfo.arr[j][i] = 0;
                         index = -1;
                     }
@@ -91,7 +98,7 @@ void Game::moveUp()
 
 void Game::moveDown()
 {
-    for (int i = dataInfo.width - 1 ; i >= 0; i--)
+    for (int i = 0; i < dataInfo.width; i++)
     {
         int index = -1;
         for (int j = dataInfo.height - 1; j >= 0; j--)
@@ -105,8 +112,8 @@ void Game::moveDown()
                         move = true;
                         dataInfo.arr[index][i] += dataInfo.arr[j][i];
                         dataInfo.score += dataInfo.arr[j][i];
-                        dataInfo.best = dataInfo.best < dataInfo.arr[index][i] ? dataInfo.arr[index][i] : dataInfo.best;
-                        dataInfo.count ++;
+                        dataInfo.best = (((dataInfo.best) > (dataInfo.arr[index][i])) ? (dataInfo.best) : (dataInfo.arr[index][i]));
+                        dataInfo.count++;
                         dataInfo.arr[j][i] = 0;
                         index = -1;
                     }
@@ -122,8 +129,8 @@ void Game::moveDown()
             }
         }
 
-        int row = 3;
-        for (int j = 2; j >= 0; j--)
+        int row = dataInfo.height - 1;
+        for (int j = dataInfo.height - 2; j >= 0; j--)
         {
             if (dataInfo.arr[row][i] == 0)
             {
@@ -145,28 +152,25 @@ void Game::moveDown()
 
 void Game::moveLeft()
 {
-    for (int i = 0; i < 4; i++)
+    for (int i = 0; i < dataInfo.height; i++)
     {
-        //∫œ≤¢¡ŸΩ¸œ‡Õ¨ ˝◊÷œÓ
         int index = -1;
-        for (int j = 0; j < 4; j++)
+        for (int j = 0; j < dataInfo.width; j++)
         {
             if (dataInfo.arr[i][j] != 0)
             {
                 if (index != -1)
                 {
-                    //º«¬º∑«0 ˝◊÷œ¬±ÍµΩindex£¨‘Ÿø¥œ¬“ª∏ˆ ˝◊÷ «∑Òœ‡µ»£¨œ‡µ»æÕº”µΩindexµƒ ˝◊÷¿Ô£¨≤¢∞—index≥ı ºªØ°£
                     if (dataInfo.arr[i][index] == dataInfo.arr[i][j])
                     {
                         move = true;
                         dataInfo.arr[i][index] += dataInfo.arr[i][j];
                         dataInfo.score += dataInfo.arr[i][j];
-                        dataInfo.best = dataInfo.best < dataInfo.arr[i][index] ? dataInfo.arr[i][index] : dataInfo.best;
-                        dataInfo.count ++;
+                        dataInfo.best = (((dataInfo.best) > (dataInfo.arr[i][index])) ? (dataInfo.best) : (dataInfo.arr[i][index]));
+                        dataInfo.count++;
                         dataInfo.arr[i][j] = 0;
                         index = -1;
                     }
-                        //»Áπ˚≤ªœ‡µ»‘Úindex–ﬁ∏ƒŒ™–¬µƒ ˝◊÷µƒœ¬±Í
                     else
                     {
                         index = j;
@@ -178,9 +182,8 @@ void Game::moveLeft()
                 }
             }
         }
-        //“∆∂Ø ˝◊÷£¨œ»º«¬ºø’Œªµƒœ¬±Í£¨∞—∫Û√Ê≤ªŒ™0µƒ ˝◊÷∑≈µΩø’Œª…œ
         int row = 0;
-        for (int j = 1; j < 4; j++)
+        for (int j = 1; j < dataInfo.width; j++)
         {
             if (dataInfo.arr[i][row] == 0)
             {
@@ -202,10 +205,10 @@ void Game::moveLeft()
 
 void Game::moveRight()
 {
-    for (int i = 3; i >= 0; i--)
+    for (int i = 0; i < dataInfo.height; i++)
     {
         int index = -1;
-        for (int j = 3; j >= 0; j--)
+        for (int j = dataInfo.width - 1; j >= 0; j--)
         {
             if (dataInfo.arr[i][j] != 0)
             {
@@ -216,8 +219,8 @@ void Game::moveRight()
                         move = true;
                         dataInfo.arr[i][index] += dataInfo.arr[i][j];
                         dataInfo.score += dataInfo.arr[i][j];
-                        dataInfo.best = dataInfo.best < dataInfo.arr[i][index] ? dataInfo.arr[i][index] : dataInfo.best;
-                        dataInfo.count ++;
+                        dataInfo.best = (((dataInfo.best) > (dataInfo.arr[i][index])) ? (dataInfo.best) : (dataInfo.arr[i][index]));
+                        dataInfo.count++;
                         dataInfo.arr[i][j] = 0;
                         index = -1;
                     }
@@ -232,9 +235,8 @@ void Game::moveRight()
                 }
             }
         }
-
-        int row = 3;
-        for (int j = 2; j >= 0; j--)
+        int row = dataInfo.width - 1;
+        for (int j = dataInfo.width - 2; j >= 0; j--)
         {
             if (dataInfo.arr[i][row] == 0)
             {
@@ -256,215 +258,22 @@ void Game::moveRight()
 
 void Game::moveAdd(int key)
 {
-    if(key==1)
+    if (key == 1)
     {
-        for (int i = 0; i < 4; i++)
-        {
-            //∫œ≤¢¡ŸΩ¸œ‡Õ¨ ˝◊÷œÓ
-            int index = -1;
-            for (int j = 0; j < 4; j++)
-            {
-                if (dataInfo.arr[i][j] != 0)
-                {
-                    if (index != -1)
-                    {
-                        //º«¬º∑«0 ˝◊÷œ¬±ÍµΩindex£¨‘Ÿø¥œ¬“ª∏ˆ ˝◊÷ «∑Òœ‡µ»£¨œ‡µ»æÕº”µΩindexµƒ ˝◊÷¿Ô£¨≤¢∞—index≥ı ºªØ°£
-                        if (dataInfo.arr[i][index] == dataInfo.arr[i][j])
-                        {
-                            move = true;
-                            dataInfo.arr[i][index] += dataInfo.arr[i][j];
-                            dataInfo.arr[i][j] = 0;
-                            index = -1;
-                        }
-                            //»Áπ˚≤ªœ‡µ»‘Úindex–ﬁ∏ƒŒ™–¬µƒ ˝◊÷µƒœ¬±Í
-                        else
-                        {
-                            index = j;
-                        }
-                    }
-                    else
-                    {
-                        index = j;
-                    }
-                }
-            }
-            //“∆∂Ø ˝◊÷£¨œ»º«¬ºø’Œªµƒœ¬±Í£¨∞—∫Û√Ê≤ªŒ™0µƒ ˝◊÷∑≈µΩø’Œª…œ
-            int row = 0;
-            for (int j = 1; j < 4; j++)
-            {
-                if (dataInfo.arr[i][row] == 0)
-                {
-                    if (dataInfo.arr[i][j] != 0)
-                    {
-                        move = true;
-                        dataInfo.arr[i][row] = dataInfo.arr[i][j];
-                        dataInfo.arr[i][j] = 0;
-                        row++;
-                    }
-                }
-                else
-                {
-                    row++;
-                }
-            }
-        }
+        moveLeft();
         return;
     }
-
     if (key == 2)
     {
-        for (int i = 3; i >= 0; i--)
-        {
-            int index = -1;
-            for (int j = 3; j >= 0; j--)
-            {
-                if (dataInfo.arr[i][j] != 0)
-                {
-                    if (index != -1)
-                    {
-                        if (dataInfo.arr[i][index] == dataInfo.arr[i][j])
-                        {
-                            move = true;
-                            dataInfo.arr[i][index] += dataInfo.arr[i][j];
-                            dataInfo.arr[i][j] = 0;
-                            index = -1;
-                        }
-                        else
-                        {
-                            index = j;
-                        }
-                    }
-                    else
-                    {
-                        index = j;
-                    }
-                }
-            }
-
-            int row = 3;
-            for (int j = 2; j >= 0; j--)
-            {
-                if (dataInfo.arr[i][row] == 0)
-                {
-                    if (dataInfo.arr[i][j] != 0)
-                    {
-                        move = true;
-                        dataInfo.arr[i][row] = dataInfo.arr[i][j];
-                        dataInfo.arr[i][j] = 0;
-                        row--;
-                    }
-                }
-                else
-                {
-                    row--;
-                }
-            }
-        }
+        moveRight();
         return;
     }
-
     if (key == 3)
     {
-        for (int i = 3; i >= 0; i--)
-        {
-            int index = -1;
-            for (int j = 3; j >= 0; j--)
-            {
-                if (dataInfo.arr[j][i] != 0)
-                {
-                    if (index != -1)
-                    {
-                        if (dataInfo.arr[index][i] == dataInfo.arr[j][i])
-                        {
-                            move = true;
-                            dataInfo.arr[index][i] += dataInfo.arr[j][i];
-                            dataInfo.arr[j][i] = 0;
-                            index = -1;
-                        }
-                        else
-                        {
-                            index = j;
-                        }
-                    }
-                    else
-                    {
-                        index = j;
-                    }
-                }
-            }
-
-            int row = 3;
-            for (int j = 2; j >= 0; j--)
-            {
-                if (dataInfo.arr[row][i] == 0)
-                {
-                    if (dataInfo.arr[j][i] != 0)
-                    {
-                        move = true;
-                        dataInfo.arr[row][i] = dataInfo.arr[j][i];
-                        dataInfo.arr[j][i] = 0;
-                        row--;
-                    }
-                }
-                else
-                {
-                    row--;
-                }
-            }
-        }
+        moveDown();
         return;
     }
-    else
-    {
-        for (int i = 0; i < 4; i++)
-        {
-            int index = -1;
-            for (int j = 0; j < 4; j++)
-            {
-                if (dataInfo.arr[j][i] != 0)
-                {
-                    if (index != -1)
-                    {
-                        if (dataInfo.arr[index][i] == dataInfo.arr[j][i])
-                        {
-                            move = true;
-                            dataInfo.arr[index][i] += dataInfo.arr[j][i];
-                            dataInfo.arr[j][i] = 0;
-                            index = -1;
-                        }
-                        else
-                        {
-                            index = j;
-                        }
-                    }
-                    else
-                    {
-                        index = j;
-                    }
-                }
-            }
-
-            int row = 0;
-            for (int j = 1; j < 4; j++)
-            {
-                if (dataInfo.arr[row][i] == 0)
-                {
-                    if (dataInfo.arr[j][i] != 0)
-                    {
-                        move = true;
-                        dataInfo.arr[row][i] = dataInfo.arr[j][i];
-                        dataInfo.arr[j][i] = 0;
-                        row++;
-                    }
-                }
-                else
-                {
-                    row++;
-                }
-            }
-        }
-        return;
-    }
+    moveUp();
 }
 
 bool nonzero(int val)
@@ -474,16 +283,15 @@ bool nonzero(int val)
 
 bool Game::size()
 {
-    for (int i = 0; i < 4; i++)
+    for (int i = 0; i < dataInfo.height; i++)
     {
-        for (int j = 0; j < 4; j++)
+        for (int j = 0; j < dataInfo.width; j++)
         {
-            if (j != 3)
+            if (j != dataInfo.width - 1)
             {
-                if (i != 3)
+                if (i != dataInfo.height - 1)
                 {
-                    if (dataInfo.arr[i][j] == dataInfo.arr[i][j + 1] || dataInfo.arr[i][j] == dataInfo.arr[i + 1][j]
-                        || dataInfo.arr[i][j] == 0 || dataInfo.arr[i][j + 1] == 0 || dataInfo.arr[i + 1][j] == 0)
+                    if (dataInfo.arr[i][j] == dataInfo.arr[i][j + 1] || dataInfo.arr[i][j] == dataInfo.arr[i + 1][j] || dataInfo.arr[i][j] == 0 || dataInfo.arr[i][j + 1] == 0 || dataInfo.arr[i + 1][j] == 0)
                     {
                         return true;
                     }
@@ -498,7 +306,7 @@ bool Game::size()
             }
             else
             {
-                if (dataInfo.arr[i][j] == dataInfo.arr[i + 1][j])
+                if (i != dataInfo.height - 1 && dataInfo.arr[i][j] == dataInfo.arr[i + 1][j])
                 {
                     return true;
                 }
@@ -507,25 +315,39 @@ bool Game::size()
     }
     return false;
 }
+
 void Game::startGame()
 {
     bool is_start = true;
+    std::random_device rd;
+    std::mt19937 gen(rd());
     while (is_start)
     {
+        // Ê∏ÖÂ±èÔºàË∑®Âπ≥Âè∞Ôºâ
+#ifdef _WIN32
         system("cls");
+#else
+        system("clear");
+#endif
+
         if (move)
         {
-
-            while (true)
+            // ÈöèÊú∫ÁîüÊàê‰∏Ä‰∏™Á©∫Ê†º‰ΩçÁΩÆ
+            std::vector<std::pair<int, int>> emptyCells;
+            for (int i = 0; i < dataInfo.height; ++i)
             {
-                int ran_i = rand() % 3;
-                int ran_j = rand() % 3;
-                if (dataInfo.arr[ran_i][ran_j] == 0)
+                for (int j = 0; j < dataInfo.width; ++j)
                 {
-                    dataInfo.arr[ran_i][ran_j] = 2;
-                    move = false;
-                    break;
+                    if (dataInfo.arr[i][j] == 0)
+                        emptyCells.emplace_back(i, j);
                 }
+            }
+            if (!emptyCells.empty())
+            {
+                std::uniform_int_distribution<> dis(0, static_cast<int>(emptyCells.size()) - 1);
+                auto [ran_i, ran_j] = emptyCells[dis(gen)];
+                dataInfo.arr[ran_i][ran_j] = 2;
+                move = false;
             }
         }
 
@@ -534,40 +356,43 @@ void Game::startGame()
         cout << "BOOS Key: B" << "\tReturn Home: R" << endl;
         cout << " -------------------" << endl;
         bool arr_full = true;
-        for (int i = 0; i < dataInfo.width; i++)
+        for (int i = 0; i < dataInfo.height; i++)
         {
-            cout << "|";
-            for (int j = 0; j < dataInfo.height; j++)
+            std::cout << "|";
+            for (int j = 0; j < dataInfo.width; j++)
             {
                 if (dataInfo.arr[i][j] == 0)
                 {
-                    cout << "    ";
+                    std::cout << "    ";
                     arr_full = false;
                 }
                 else if (dataInfo.arr[i][j] < 10)
                 {
-                    cout << dataInfo.arr[i][j] << "   ";
+                    std::cout << dataInfo.arr[i][j] << "   ";
                 }
-                else if(dataInfo.arr[i][j] < 100)
+                else if (dataInfo.arr[i][j] < 100)
                 {
-                    cout << dataInfo.arr[i][j] << "  ";
+                    std::cout << dataInfo.arr[i][j] << "  ";
                 }
                 else if (dataInfo.arr[i][j] < 1000)
                 {
-                    cout << dataInfo.arr[i][j] << " ";
+                    std::cout << dataInfo.arr[i][j] << " ";
                 }
                 else
                 {
-                    cout << dataInfo.arr[i][j];
+                    std::cout << dataInfo.arr[i][j];
                 }
-                cout << "|";
+                std::cout << "|";
             }
-            cout << endl<<" -------------------" << endl;
+            std::cout << std::endl
+                      << " -------------------" << std::endl;
         }
         if (arr_full)
         {
-            cout << "Game Over!" << endl;
-            system("pause");
+            std::cout << "Game Over!" << std::endl;
+            std::cout << "Press Enter to continue..." << std::endl;
+            std::cin.ignore();
+            std::cin.get();
             return;
         }
 
@@ -580,18 +405,20 @@ void Game::startGame()
                 keywork = _getch();
                 switch (keywork)
                 {
+                    case 'c':
+                    case 'C':
+//                        saveDate2Local();
+                        break;
                     case 'B':
-                    case 'b':   // ¿œ∞Âº¸
+                    case 'b':// ËÄÅÊùøÈîÆ
                     {
-                        // ◊Ó–°ªØµ±«∞¥∞ø⁄
                         HWND hwnd = GetForegroundWindow();
                         ShowWindow(hwnd, SW_MINIMIZE);
-                        // ÀÊª˙º§ªÓ¡Ì“ª∏ˆ¥∞ø⁄
                         tool::activateRandomWindow();
                     }
-                        break;
+                    break;
                     case 'r':
-                    case 'R':   // ∑µªÿ ◊“≥
+                    case 'R':
                         is_start = false;
                         key = false;
                         break;
@@ -616,83 +443,153 @@ void Game::startGame()
                         key = false;
                         break;
                     default:
+                        std::cout << "Invalid input, try again." << std::endl;
                         break;
                 }
             }
         }
     }
 }
+
 void Game::saveDate2Local()
 {
-    std::wstring cachePath = getAppCachePath() + L"\\game_data_2048.dat";
-    std::string narrowPath = wstring_to_string(cachePath);
-
-    size_t baseSize = sizeof(dataInfo.score) + sizeof(dataInfo.best) +
-                      sizeof(dataInfo.count) + sizeof(dataInfo.width) +
-                      sizeof(dataInfo.height);
-    size_t arrSize = dataInfo.width * dataInfo.height * sizeof(int);
-    size_t totalSize = baseSize + arrSize;
-
-    std::vector<unsigned char> buffer(totalSize);
-    unsigned char* ptr = buffer.data();
-
-    memcpy(ptr, &dataInfo.score, sizeof(dataInfo.score));
-    ptr += sizeof(dataInfo.score);
-
-    memcpy(ptr, &dataInfo.best, sizeof(dataInfo.best));
-    ptr += sizeof(dataInfo.best);
-
-    memcpy(ptr, &dataInfo.count, sizeof(dataInfo.count));
-    ptr += sizeof(dataInfo.count);
-
-    memcpy(ptr, &dataInfo.width, sizeof(dataInfo.width));
-    ptr += sizeof(dataInfo.width);
-
-    memcpy(ptr, &dataInfo.height, sizeof(dataInfo.height));
-    ptr += sizeof(dataInfo.height);
-
-    for (int i = 0; i < dataInfo.height; ++i)
+    try
     {
-        for (int j = 0; j < dataInfo.width; ++j)
+        // Ëé∑ÂèñÂπ∂Ê£ÄÊü•ÁºìÂ≠òË∑ØÂæÑ
+        std::string cacheDir = getAppCachePath();
+        if (cacheDir.empty())
         {
-            memcpy(ptr, &dataInfo.arr[i][j], sizeof(int));
-            ptr += sizeof(int);
+            cerr << "Error: Unable to obtain the application cache directory path" << endl;
+            return;
         }
+
+        std::filesystem::path cachePath = std::filesystem::path(cacheDir) / SAVE_FILE_NAME;
+        std::cout << "save path: " << cachePath << std::endl;
+
+        std::filesystem::path parentPath = cachePath.parent_path();
+        if (!std::filesystem::exists(parentPath))
+        {
+            std::cout << "Directory does not exist, creating: " << parentPath << std::endl;
+            std::error_code ec;
+            if (!std::filesystem::create_directories(parentPath, ec))
+            {
+                std::cerr << "Error: Failed to create directory " << parentPath
+                          << "\nError code: " << ec.value()
+                          << "\nError message: " << ec.message() << std::endl;
+                return;
+            }
+            std::cout << "Directory created successfully" << std::endl;
+        }
+
+        size_t baseSize = sizeof(dataInfo.score) + sizeof(dataInfo.best) +
+                          sizeof(dataInfo.count) + sizeof(dataInfo.width) +
+                          sizeof(dataInfo.height);
+        size_t arrSize = dataInfo.width * dataInfo.height * sizeof(int);
+        size_t totalSize = baseSize + arrSize;
+
+        std::cout << "Êï∞ÊçÆÂ§ßÂ∞è - Âü∫Á°Ä: " << baseSize
+                  << ", Êï∞ÁªÑ: " << arrSize
+                  << ", ÊÄªËÆ°: " << totalSize << std::endl;
+
+        if (dataInfo.width <= 0 || dataInfo.height <= 0)
+        {
+            std::cerr << "ÈîôËØØÔºöÊó†ÊïàÁöÑÊï∞ÁªÑÂÆΩÂ∫¶ width=" << dataInfo.width
+                      << ", height=" << dataInfo.height << std::endl;
+            return;
+        }
+
+        std::vector<uint8_t> buffer(totalSize);
+        uint8_t *ptr = buffer.data();
+
+        memcpy(ptr, &dataInfo.score, sizeof(dataInfo.score));
+        ptr += sizeof(dataInfo.score);
+
+        memcpy(ptr, &dataInfo.best, sizeof(dataInfo.best));
+        ptr += sizeof(dataInfo.best);
+
+        memcpy(ptr, &dataInfo.count, sizeof(dataInfo.count));
+        ptr += sizeof(dataInfo.count);
+
+        memcpy(ptr, &dataInfo.width, sizeof(dataInfo.width));
+        ptr += sizeof(dataInfo.width);
+
+        memcpy(ptr, &dataInfo.height, sizeof(dataInfo.height));
+        ptr += sizeof(dataInfo.height);
+
+        for (int i = 0; i < dataInfo.height; ++i)
+        {
+            for (int j = 0; j < dataInfo.width; ++j)
+            {
+                memcpy(ptr, &dataInfo.arr[i][j], sizeof(int));
+                ptr += sizeof(int);
+            }
+        }
+
+        // Âä†ÂØÜÊï∞ÊçÆ
+        xorEncryptDecrypt(buffer.data(), totalSize);
+        std::cout << "Êï∞ÊçÆÂä†ÂØÜÂÆåÊàê" << std::endl;
+
+        // ÂÜôÂÖ•Êñá‰ª∂
+        std::ofstream file(cachePath, std::ios::binary);
+        if (!file)
+        {
+            std::error_code ec;
+            ec.assign(errno, std::system_category());
+            std::cerr << "ÈîôËØØÔºöÊó†Ê≥ïÊâìÂºÄÊñá‰ª∂ " << cachePath
+                      << "\nÈîôËØØ‰ª£Á†Å: " << ec.value()
+                      << "\nÈîôËØØ‰ø°ÊÅØ: " << ec.message() << std::endl;
+            return;
+        }
+
+        file.write(reinterpret_cast<const char *>(buffer.data()), totalSize);
+
+        if (!file)
+        {
+            std::error_code ec;
+            ec.assign(errno, std::system_category());
+            std::cerr << "Error: Writing to file failed"
+                      << "\nÈîôËØØ‰ª£Á†Å: " << ec.value()
+                      << "\nÈîôËØØ‰ø°ÊÅØ: " << ec.message() << std::endl;
+            return;
+        }
+
+        std::cout << "ÊàêÂäü‰øùÂ≠ò " << totalSize << " Â≠óËäÇÊï∞ÊçÆÂà∞ " << cachePath << std::endl;
     }
-
-    // º”√‹ ˝æ›
-    xorEncryptDecrypt(buffer.data(), totalSize);
-
-    std::ofstream file(narrowPath, std::ios::binary);
-    if (file)
+    catch (const std::exception &e)
     {
-        file.write(reinterpret_cast<const char*>(buffer.data()), totalSize);
+        std::cerr << "ÂºÇÂ∏∏: " << e.what() << std::endl;
+    }
+    catch (...)
+    {
+        std::cerr << "Êú™Áü•ÂºÇÂ∏∏" << std::endl;
     }
 }
+
 void Game::loadLocalDate()
 {
-    std::wstring cachePath = getAppCachePath() + L"\\game_data_2048.dat";
-    std::string narrowPath = wstring_to_string(cachePath);
+    std::filesystem::path cachePath = getAppCachePath() + "/" + SAVE_FILE_NAME;
 
-    std::ifstream file(narrowPath, std::ios::binary | std::ios::ate);
+    std::ifstream file(cachePath, std::ios::binary | std::ios::ate);
     if (!file) return;
 
     std::streamsize size = file.tellg();
     file.seekg(0, std::ios::beg);
 
-    std::vector<unsigned char> buffer(size);
-    if (file.read(reinterpret_cast<char*>(buffer.data()), size))
+    std::vector<uint8_t> buffer(size);
+    if (file.read(reinterpret_cast<char *>(buffer.data()), size))
     {
-        // Ω‚√‹ ˝æ›
+        // Ëß£ÂØÜÊï∞ÊçÆ
         xorEncryptDecrypt(buffer.data(), size);
 
-        const unsigned char* ptr = buffer.data();
+        const uint8_t *ptr = buffer.data();
 
+        // ËØªÂèñÂü∫Êú¨Êï∞ÊçÆ
         memcpy(&dataInfo.score, ptr, sizeof(dataInfo.score));
         ptr += sizeof(dataInfo.score);
-        memcpy(&dataInfo.best, ptr, sizeof(dataInfo.best));
 
+        memcpy(&dataInfo.best, ptr, sizeof(dataInfo.best));
         ptr += sizeof(dataInfo.best);
+
         memcpy(&dataInfo.count, ptr, sizeof(dataInfo.count));
         ptr += sizeof(dataInfo.count);
 
@@ -702,6 +599,7 @@ void Game::loadLocalDate()
         memcpy(&dataInfo.height, ptr, sizeof(dataInfo.height));
         ptr += sizeof(dataInfo.height);
 
+        // ÂàÜÈÖçÊï∞ÁªÑÂÜÖÂ≠ò
         if (dataInfo.arr)
         {
             for (int i = 0; i < dataInfo.height; ++i)
@@ -711,12 +609,13 @@ void Game::loadLocalDate()
             delete[] dataInfo.arr;
         }
 
-        dataInfo.arr = new int*[dataInfo.height];
+        dataInfo.arr = new int *[dataInfo.height];
         for (int i = 0; i < dataInfo.height; ++i)
         {
             dataInfo.arr[i] = new int[dataInfo.width];
         }
 
+        // ËØªÂèñÊï∞ÁªÑÊï∞ÊçÆ
         for (int i = 0; i < dataInfo.height; ++i)
         {
             for (int j = 0; j < dataInfo.width; ++j)
@@ -726,4 +625,11 @@ void Game::loadLocalDate()
             }
         }
     }
+}
+
+bool Game::checkSaveLocalDate()
+{
+    std::string cachePath = getAppCachePath() + SAVE_FILE_NAME;
+    std::ifstream file(cachePath, std::ios::binary);
+    return file.good();
 }

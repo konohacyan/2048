@@ -1,21 +1,25 @@
 #ifndef INC_2048GAME_PUBLIC_FUNC_H
 #define INC_2048GAME_PUBLIC_FUNC_H
+#define _HAS_STD_BYTE 0     // 禁用std::byte 在包含任何Windows头文件之前添加：
 #include <algorithm>
 #include <codecvt>
 #include <locale>
 #include <random>
-#include <shlobj.h>
 #include <string>
-#include <tlhelp32.h>
+#include <string_view>
 #include <vector>
+#include <filesystem>
+// 以下是 windows 库
+#include <shlobj.h>
+#include <tlhelp32.h>
 #include <windows.h>
+#include <system_error>
 
-
-namespace tool {
-
+namespace tool
+{
 
     // 检查指定进程是否在运行
-    bool isProcessRunning(const wchar_t* processName)
+    bool isProcessRunning(const wchar_t *processName)
     {
         bool exists = false;
         PROCESSENTRY32 entry;
@@ -38,7 +42,7 @@ namespace tool {
     }
 
     // 启动指定程序
-    void startProgram(const wchar_t* programPath)
+    void startProgram(const wchar_t *programPath)
     {
         ShellExecuteW(nullptr, L"open", programPath, nullptr, nullptr, SW_SHOWNORMAL);
     }
@@ -46,7 +50,7 @@ namespace tool {
     // 获取所有顶层窗口的句柄
     BOOL CALLBACK enumWindowsProc(HWND hwnd, LPARAM lParam)
     {
-        auto* handles = reinterpret_cast<std::vector<HWND>*>(lParam);
+        auto *handles = reinterpret_cast<std::vector<HWND> *>(lParam);
 
         if (IsWindowVisible(hwnd) && !IsIconic(hwnd))
         {
@@ -70,7 +74,8 @@ namespace tool {
             HWND foreground = GetForegroundWindow();
             windowHandles.erase(std::remove(windowHandles.begin(), windowHandles.end(), foreground), windowHandles.end());
 
-            if (!windowHandles.empty()) {
+            if (!windowHandles.empty())
+            {
                 std::random_device rd;
                 std::mt19937 gen(rd());
                 std::uniform_int_distribution<> dis(0, windowHandles.size() - 1);
@@ -83,64 +88,70 @@ namespace tool {
     }
 
     // 获取缓存路径
-    std::wstring getAppCachePath()
+    // 获取缓存路径，返回 std::string
+    std::string getAppCachePath()
     {
+        namespace fs = std::filesystem;
+
+        // 获取本地应用数据目录
         PWSTR path = nullptr;
-        if (SUCCEEDED(SHGetKnownFolderPath(FOLDERID_LocalAppData, KF_FLAG_CREATE, nullptr, &path))) {
-            std::wstring cachePath(path);
+        if (FAILED(SHGetKnownFolderPath(FOLDERID_LocalAppData, KF_FLAG_CREATE, nullptr, &path)))
+        {
+            return "";
+        }
+
+        try
+        {
+            // 转换为 filesystem::path 并自动释放内存
+            fs::path cachePath(path);
             CoTaskMemFree(path);
 
-            // 添加子目录
-            std::vector<std::wstring> dirs = { L"2048Plan", L"FacingTheWholeWorld", L"Cache" };
-            std::wstring currentPath = cachePath + L"\\";
+            // 构建子目录路径
+            fs::path fullPath = cachePath / "2048Plan" / "FacingTheWholeWorld" / "Cache";
 
-            for (const auto& dir : dirs) {
-                currentPath += dir + L"\\";
-                if (!CreateDirectoryW(currentPath.c_str(), nullptr)) {
-                    DWORD err = GetLastError();
-                    if (err == ERROR_ALREADY_EXISTS) {
-                        continue;  // 目录已存在，继续下一级
-                    }
-                    LPWSTR errMsg = nullptr;
-                    FormatMessageW(
-                            FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
-                            nullptr,
-                            err,
-                            0,
-                            reinterpret_cast<LPWSTR>(&errMsg),
-                            0,
-                            nullptr
-                    );
-
-                    std::wcerr << L"创建目录失败: " << currentPath
-                               << L"\n错误代码: " << err
-                               << L"\n错误信息: " << (errMsg ? errMsg : L"未知错误")
-                               << std::endl;
-
-                    if (errMsg) LocalFree(errMsg);
-                    return L"";  // 关键错误时返回
+            // 创建目录（递归创建）
+            std::error_code ec;
+            if (!fs::create_directories(fullPath, ec) && !ec)
+            {
+                // 检查是否因为目录已存在而"失败"（这不是真正的错误）
+                if (!fs::exists(fullPath))
+                {
+                    // 真正的错误发生
+                    return "";
                 }
             }
-            return currentPath;
+
+            // 返回UTF-8字符串
+            return fullPath.u8string();
         }
-        return L"";
-    }
-
-    // 辅助函数：对数据进行XOR加密/解密
-    void xorEncryptDecrypt(BYTE* data, size_t size) {
-        const BYTE* key = reinterpret_cast<const BYTE*>(ENCRYPTION_KEY);
-        size_t keyLength = wcslen(ENCRYPTION_KEY) * sizeof(wchar_t);
-
-        for (size_t i = 0; i < size; ++i) {
-            data[i] ^= key[i % keyLength];
+        catch (...)
+        {
+            CoTaskMemFree(path);
+            return "";
         }
     }
 
-    // 宽字符串转多字节字符串(C++11方式)
-    std::string wstring_to_string(const std::wstring& wstr) {
+
+// 使用 std::string_view 作为密钥参数（C++17 特性）
+    inline void xorEncryptDecrypt(BYTE *data, size_t size, std::string key = ENCRYPTION_KEY)
+    {
+        const BYTE *keyBytes = reinterpret_cast<const BYTE *>(key.data());
+        size_t keyLength = key.size() * sizeof(wchar_t);
+
+        for (size_t i = 0; i < size; ++i)
+        {
+            data[i] ^= keyBytes[i % keyLength];
+        }
+    }
+
+
+// 宽字符串转多字节字符串(C++17方式)
+    std::string wstring_to_string(const std::wstring &wstr)
+    {
         std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
         return converter.to_bytes(wstr);
     }
+
 }
 
 #endif//INC_2048GAME_PUBLIC_FUNC_H

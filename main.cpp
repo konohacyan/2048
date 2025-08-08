@@ -1,4 +1,5 @@
 #include<iostream>
+#include <limits>
 using namespace std;
 #include"Game.h"
 
@@ -6,7 +7,6 @@ int main()
 {
     //srand((unsigned int)time(NULL));
     Game g;
-    //����������2��֮��ÿ�ƶ�һ������һ��2����ͬ���ֽ��кϲ����ϲ���һ�����õ�������ķ֡�ֱ�����и��Ӷ�������
     while (true)
     {
         g.showMenu();
@@ -15,7 +15,7 @@ int main()
         if (cin.fail())
         {
             cin.clear();
-            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
             cout << "Incorrect input!" << endl;
             system("pause");
             system("cls");
@@ -29,7 +29,7 @@ int main()
                 system("cls");
                 break;
             case 2:
-                cout << "������" << endl;
+                cout << "wait dev" << endl;
                 system("pause");
                 system("cls");
                 break;
