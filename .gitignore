@@ -1,8 +1,12 @@
 /cmake-build-debug/
 *.user
 /cmake-build-debug-mingw/
+/cmake-build-debug-visual-studio/
 .idea
 .vs
 .vscode
 build
 out
+CMakeLists.txt.user
+main.obj
+*.pdb

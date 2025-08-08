@@ -1,5 +1,5 @@
 #include <public_func.h>
-
+#define _HAS_STD_BYTE 0     // ç¦ç”¨std::byte åœ¨åŒ…å«ä»»ä½•Windowså¤´æ–‡ä»¶ä¹‹å‰æ·»åŠ ï¼š
 namespace tool
 {
     bool isProcessRunning(const wchar_t *processName)
@@ -71,7 +71,7 @@ namespace tool
     {
         namespace fs = std::filesystem;
 
-        // »ñÈ¡±¾µØÓ¦ÓÃÊı¾İÄ¿Â¼
+        // è·å–æœ¬åœ°åº”ç”¨æ•°æ®ç›®å½•
         PWSTR path = nullptr;
         if (FAILED(SHGetKnownFolderPath(FOLDERID_LocalAppData, KF_FLAG_CREATE, nullptr, &path)))
         {
@@ -80,26 +80,26 @@ namespace tool
 
         try
         {
-            // ×ª»»Îª filesystem::path ²¢×Ô¶¯ÊÍ·ÅÄÚ´æ
+            // è½¬æ¢ä¸º filesystem::path å¹¶è‡ªåŠ¨é‡Šæ”¾å†…å­˜
             fs::path cachePath(path);
             CoTaskMemFree(path);
 
-            // ¹¹½¨×ÓÄ¿Â¼Â·¾¶
+            // æ„å»ºå­ç›®å½•è·¯å¾„
             fs::path fullPath = cachePath / "2048Plan" / "FacingTheWholeWorld" / "Cache";
 
-            // ´´½¨Ä¿Â¼£¨µİ¹é´´½¨£©
+            // åˆ›å»ºç›®å½•ï¼ˆé€’å½’åˆ›å»ºï¼‰
             std::error_code ec;
             if (!fs::create_directories(fullPath, ec) && !ec)
             {
-                // ¼ì²éÊÇ·ñÒòÎªÄ¿Â¼ÒÑ´æÔÚ¶ø"Ê§°Ü"£¨Õâ²»ÊÇÕæÕıµÄ´íÎó£©
+                // æ£€æŸ¥æ˜¯å¦å› ä¸ºç›®å½•å·²å­˜åœ¨è€Œ"å¤±è´¥"ï¼ˆè¿™ä¸æ˜¯çœŸæ­£çš„é”™è¯¯ï¼‰
                 if (!fs::exists(fullPath))
                 {
-                    // ÕæÕıµÄ´íÎó·¢Éú
+                    // çœŸæ­£çš„é”™è¯¯å‘ç”Ÿ
                     return "";
                 }
             }
 
-            // ·µ»ØUTF-8×Ö·û´®
+            // è¿”å›UTF-8å­—ç¬¦ä¸²
             return fullPath.u8string();
         }
         catch (...)
