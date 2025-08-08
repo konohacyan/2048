@@ -399,6 +399,8 @@ void Game::startGame()
         }
         if (arr_full)
         {
+            dataInfo.clear();
+            move = true;
             std::cout << "Game Over!" << std::endl;
             std::cout << "Press Enter to continue..." << std::endl;
             std::cin.ignore();

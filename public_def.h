@@ -47,6 +47,20 @@ typedef struct data_info_2048
         }
         delete[] arr;
     }
+
+    void clear()
+    {
+        for (int i = 0; i < height; i++)
+        {
+            for (int j = 0; j < width; j++)
+            {
+                arr[i][j] = 0;
+            }
+        }
+        score = 0;
+        best = 0;
+        count = 0;
+    }
     // 重新调整数组大小
     void resize(int newWidth, int newHeight)
     {
