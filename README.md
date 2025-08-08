@@ -2,6 +2,9 @@
 [![License](https://img.shields.io/badge/License-404-yellow.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![C++ Standard](https://img.shields.io/badge/C++-11/14/17/20/23/26-blue.svg)](https://en.cppreference.com/)
 
+**项目LOGO**
+![Uploading 1.png…]()
+
 **项目简介**：  
 这是一个用 C++ 开发的 **2048 小游戏**，目标是 **从控制台走向全世界**（如果摸鱼时间够多的话）。  
 
