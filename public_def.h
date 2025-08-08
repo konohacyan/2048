@@ -12,6 +12,12 @@ using namespace std;
 extern const string ENCRYPTION_KEY;
 extern const string SAVE_FILE_NAME;
 
+extern const string REMOTE_DB_ADDRESS;  // 远程数据库地址
+extern const int REMOTE_DB_PORT;       // 远程数据库端口
+extern const string REMOTE_DB_USERNAME; // 远程数据库用户名
+extern const string REMOTE_DB_PASSWORD; // 远程数据库密码
+extern const string DEFAULT_SCHEMA ;// 默认数据库名，根据实际情况修改
+
 typedef struct data_info_2048
 {
     int score;
