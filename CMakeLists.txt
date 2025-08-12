@@ -28,9 +28,15 @@ elseif(WIN32)
     # 如果是Windows系统，设置Qt的qmake可执行文件路径
     if(DEFINED ENV{QtPath} AND MSVC)
         message(STATUS "Using MSVC, Using Qt ENV QtPath: $ENV{QtPath}")
-        set(QT_QMAKE_EXECUTABLE "$ENV{QtPath}/msvc2017_64/bin/qmake.exe")
+        set(QT_BIN_DIR "$ENV{QtPath}/msvc2017_64/bin")
         set(Qt5_DIR "$ENV{QtPath}/msvc2017_64/lib/cmake/Qt5")
         set(CMAKE_PREFIX_PATH "$ENV{QtPath}/msvc2017_64")
+        set(QT_QMAKE_EXECUTABLE "${QT_BIN_DIR}/qmake.exe")
+        # file(COPY 
+        #     "${QT_BIN_DIR}/Qt5Gui.dll"
+        #     "${QT_BIN_DIR}/Qt5Core.dll"
+        #     "${QT_BIN_DIR}/Qt5Widgets.dll"
+        #     DESTINATION ${CMAKE_BINARY_DIR})
     else()
         message(STATUS "Using MinGW, Default Qt Path")
         set(QT_QMAKE_EXECUTABLE "D:/Qt/Qt5.0.12/5.12.0/mingw73_64/bin/qmake.exe")
@@ -53,12 +59,38 @@ add_executable(2048Game main.cpp Game.cpp
         public_def.h
         public_def.cpp)
 
+# Windows 下用 windeployqt 部署 DLL
+if(WIN32 AND MSVC)
+    find_program(WINDEPLOYQT_EXECUTABLE NAMES windeployqt HINTS "${QT_BIN_DIR}")
+    if(WINDEPLOYQT_EXECUTABLE)
+        # 定义部署参数：Debug 用 --debug，Release 用 --release
+        set(WINDEPLOYQT_MODE "$<$<CONFIG:Debug>:--debug>$<$<CONFIG:Release>:--release>")
+        
+        add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+            COMMAND ${WINDEPLOYQT_EXECUTABLE} 
+                --no-translations 
+                ${WINDEPLOYQT_MODE} 
+                "$<TARGET_FILE_DIR:${PROJECT_NAME}>/$<TARGET_FILE_NAME:${PROJECT_NAME}>"
+            COMMENT "Deploying Qt libraries (${CMAKE_BUILD_TYPE}) with windeployqt"
+        )
+    else()
+        message(WARNING "windeployqt not found! Manual DLL deployment required.")
+    endif()
+endif()
+
+# 设置可执行文件的运行时路径
+set_target_properties(${PROJECT_NAME} PROPERTIES
+    VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
+    INSTALL_RPATH ${QT_BIN_DIR}
+    INSTALL_RPATH_USE_LINK_PATH TRUE
+)
+
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
     Qt5::Core
-#    Qt5::Gui
-#    Qt5::Sql
+    Qt5::Gui
+    Qt5::Sql
     Qt5::Widgets
 )
 
