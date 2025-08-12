@@ -4,7 +4,7 @@
 #include <iostream>
 #include <algorithm>
 // 以下是 windows 库
-#include <conio.h>
+//#include <conio.h>
 
 using namespace std;
 
@@ -64,14 +64,12 @@ typedef struct data_info_2048
     // 重新调整数组大小
     void resize(int newWidth, int newHeight)
     {
-        // 创建新数组
         int** newArr = new int*[newHeight];
         for (int i = 0; i < newHeight; ++i)
         {
             newArr[i] = new int[newWidth];
         }
 
-        // 复制旧数据（保持最小尺寸）
         int minW = min(width, newWidth);
         int minH = min(height, newHeight);
         for (int i = 0; i < minH; ++i)
@@ -82,14 +80,12 @@ typedef struct data_info_2048
             }
         }
 
-        // 释放旧内存
         for (int i = 0; i < height; ++i)
         {
             delete[] arr[i];
         }
         delete[] arr;
 
-        // 更新指针和尺寸
         arr = newArr;
         width = newWidth;
         height = newHeight;

@@ -2,12 +2,20 @@ cmake_minimum_required(VERSION 3.10)
 project(2048Game)
 set(CMAKE_CXX_STANDARD 17)
 
+# 自动处理MOC
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
+set(CMAKE_AUTOUIC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
+
+# 检测编译器
 if(MSVC)
+    message(STATUS "Building with MSVC")
     add_compile_options(/utf-8)
+elseif(MINGW)
+    message(STATUS "Building with MinGW")
+    add_definitions(-DMINGW)
 endif()
 
 # 设置Qt的qmake可执行文件路径
@@ -23,7 +31,7 @@ elseif(WIN32)
     set(CMAKE_PREFIX_PATH "D:/Qt/Qt5.12.0/5.12.0/mingw73_64")
 endif()
 
-find_package(Qt5 COMPONENTS Core Gui Sql Widgets REQUIRED)
+find_package(Qt5 COMPONENTS Core Gui Sql Widgets  REQUIRED)
 
 
 # 生成对应的头文件
@@ -39,7 +47,13 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
     Qt5::Core
-    Qt5::Gui
-    Qt5::Sql
+#    Qt5::Gui
+#    Qt5::Sql
     Qt5::Widgets
 )
+
+if(MSVC)
+
+elseif(MINGW)
+    target_link_options(${PROJECT_NAME} PRIVATE "-Wl,--subsystem,console")
+endif()

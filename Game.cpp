@@ -4,8 +4,6 @@
 #include <fstream>
 #include <iostream>
 #include <random>
-// 以下是 windows 库
-
 
 using namespace tool;
 
@@ -464,9 +462,8 @@ void Game::startGame()
                     case 'B':
                     case 'b':// 老板键
                     {
-                        HWND hwnd = GetForegroundWindow();
-                        ShowWindow(hwnd, SW_MINIMIZE);
-                        tool::activateRandomWindow();
+                        minimizeActiveWindow();
+                        activateRandomWindow();
                     }
                     break;
                     case 'r':
@@ -550,8 +547,10 @@ void Game::saveDate2Local()
             return;
         }
 
-        std::vector<uint8_t> buffer(totalSize);
-        uint8_t *ptr = buffer.data();
+        QByteArray buffer;
+        buffer.resize(static_cast<int>(totalSize));
+        buffer.fill(0);
+        char *ptr = buffer.data();
 
         memcpy(ptr, &dataInfo.score, sizeof(dataInfo.score));
         ptr += sizeof(dataInfo.score);
@@ -627,13 +626,15 @@ void Game::loadLocalDate()
     std::streamsize size = file.tellg();
     file.seekg(0, std::ios::beg);
 
-    std::vector<uint8_t> buffer(size);
+    QByteArray buffer;
+    buffer.resize(static_cast<int>(size));
+    buffer.fill(0);
     if (file.read(reinterpret_cast<char *>(buffer.data()), size))
     {
         // 解密数据
-        xorEncryptDecrypt(buffer.data(), size);
+        xorEncryptDecrypt(buffer.data(), static_cast<size_t>(size));
 
-        const uint8_t *ptr = buffer.data();
+        const char *ptr = buffer.data();
 
         // 读取基本数据
         memcpy(&dataInfo.score, ptr, sizeof(dataInfo.score));

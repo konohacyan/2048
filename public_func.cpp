@@ -1,130 +1,134 @@
 #include <public_func.h>
-#define _HAS_STD_BYTE 0     // 禁用std::byte 在包含任何Windows头文件之前添加：
+#include <QStandardPaths>
+#include <QDir>
+#include <QGuiApplication>
+#include <QWindow>
+#include <QRandomGenerator>
+#include <QDebug>
 namespace tool
 {
-    bool isProcessRunning(const wchar_t *processName)
+    bool isProcessRunning(const  QString &processName)
     {
-        bool exists = false;
-        PROCESSENTRY32 entry;
-        entry.dwSize = sizeof(PROCESSENTRY32);
-
-        HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
-        if (Process32First(snapshot, &entry))
-        {
-            while (Process32Next(snapshot, &entry))
-            {
-                if (_wcsicmp(reinterpret_cast<const wchar_t *>(entry.szExeFile), processName) == 0)
-                {
-                    exists = true;
-                    break;
-                }
-            }
-        }
-        CloseHandle(snapshot);
-        return exists;
+        QProcess process;
+            process.start("tasklist", QStringList() << "/FI" << QString("IMAGENAME eq %1").arg(processName));
+            process.waitForFinished();
+            QString output = process.readAllStandardOutput();
+            return output.contains(processName);
     }
 
-    void startProgram(const wchar_t *programPath)
+    void startProgram(const QString &programPath)
     {
-        ShellExecuteW(nullptr, L"open", programPath, nullptr, nullptr, SW_SHOWNORMAL);
-    }
-
-    BOOL CALLBACK enumWindowsProc(HWND hwnd, LPARAM lParam)
-    {
-        auto *handles = reinterpret_cast<std::vector<HWND> *>(lParam);
-
-        if (IsWindowVisible(hwnd) && !IsIconic(hwnd))
-        {
-            int length = GetWindowTextLength(hwnd);
-            if (length > 0)
-            {
-                handles->push_back(hwnd);
-            }
-        }
-        return TRUE;
+        QProcess::startDetached(programPath);
     }
 
     void activateRandomWindow()
     {
-        std::vector<HWND> windowHandles;
-        EnumWindows(enumWindowsProc, reinterpret_cast<LPARAM>(&windowHandles));
+        QList<QWindow*> windows = QGuiApplication::allWindows();
+           if (windows.isEmpty()) return;
 
-        if (!windowHandles.empty())
-        {
-            HWND foreground = GetForegroundWindow();
-            windowHandles.erase(std::remove(windowHandles.begin(), windowHandles.end(), foreground), windowHandles.end());
+           QList<QWindow*> visibleWindows;
+           for (QWindow* window : windows)
+           {
+               if (window->isVisible() && !(window->windowState() & Qt::WindowMinimized))
+               {
+                   visibleWindows.append(window);
+               }
+           }
 
-            if (!windowHandles.empty())
-            {
-                std::random_device rd;
-                std::mt19937 gen(rd());
-                std::uniform_int_distribution<> dis(0, windowHandles.size() - 1);
-                HWND randomWindow = windowHandles[dis(gen)];
+           if (visibleWindows.isEmpty()) return;
 
-                ShowWindow(randomWindow, SW_RESTORE);
-                SetForegroundWindow(randomWindow);
-            }
-        }
+           QWindow* activeWindow = QGuiApplication::focusWindow();
+           if (activeWindow) {
+               visibleWindows.removeAll(activeWindow);
+           }
+
+           if (!visibleWindows.isEmpty())
+           {
+               int randomIndex = QRandomGenerator::global()->bounded(visibleWindows.size());
+               QWindow* randomWindow = visibleWindows.at(randomIndex);
+
+               randomWindow->show();
+               randomWindow->raise();
+               randomWindow->requestActivate();
+           }
     }
 
     std::string getAppCachePath()
     {
-        namespace fs = std::filesystem;
-
-        // 获取本地应用数据目录
-        PWSTR path = nullptr;
-        if (FAILED(SHGetKnownFolderPath(FOLDERID_LocalAppData, KF_FLAG_CREATE, nullptr, &path)))
-        {
-            return "";
-        }
-
         try
         {
-            // 转换为 filesystem::path 并自动释放内存
-            fs::path cachePath(path);
-            CoTaskMemFree(path);
-
-            // 构建子目录路径
-            fs::path fullPath = cachePath / "2048Plan" / "FacingTheWholeWorld" / "Cache";
-
-            // 创建目录（递归创建）
-            std::error_code ec;
-            if (!fs::create_directories(fullPath, ec) && !ec)
-            {
-                // 检查是否因为目录已存在而"失败"（这不是真正的错误）
-                if (!fs::exists(fullPath))
-                {
-                    // 真正的错误发生
-                    return "";
-                }
+            // 获取应用数据目录（跨平台）
+            QString cacheDir = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
+            if (cacheDir.isEmpty()) {
+                qWarning() << "Failed to get application data location";
+                return "";
             }
 
-            // 返回UTF-8字符串
-            return fullPath.u8string();
+            QDir dir(cacheDir);
+            if (!dir.mkpath("2048Plan/FacingTheWholeWorld/Cache")) {
+                qWarning() << "Failed to create cache directory";
+                return "";
+            }
+
+            QString fullPath = dir.filePath("2048Plan/FacingTheWholeWorld/Cache");
+
+            // 转换为UTF-8编码的std::string
+            return fullPath.toStdString();
+
+            // 如果需要确保使用正斜杠（跨平台兼容）
+            // return QDir::toNativeSeparators(fullPath).toStdString();
         }
         catch (...)
         {
-            CoTaskMemFree(path);
+            qWarning() << "Exception occurred while getting cache path";
             return "";
         }
     }
 
 
-    void xorEncryptDecrypt(BYTE *data, size_t size)
+    void xorEncryptDecrypt(char *data, size_t size)
     {
-        const BYTE *keyBytes = reinterpret_cast<const BYTE *>(ENCRYPTION_KEY.data());
-        size_t keyLength = ENCRYPTION_KEY.size() * sizeof(wchar_t);
+
+        if (ENCRYPTION_KEY.empty()) return;
+        const char* keyData = ENCRYPTION_KEY.data();
+        size_t keyLength = ENCRYPTION_KEY.size();
 
         for (size_t i = 0; i < size; ++i)
         {
-            data[i] ^= keyBytes[i % keyLength];
+            data[i] ^= keyData[i % keyLength];
         }
     }
 
-    std::string wstring_to_string(const std::wstring &wstr)
+    QString getAppCachePathQt()
     {
-        std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
-        return converter.to_bytes(wstr);
+        QString cacheDir = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
+        if (cacheDir.isEmpty())
+        {
+            return QString();
+        }
+
+        QDir dir(cacheDir);
+        if (!dir.mkpath("2048Plan/FacingTheWholeWorld/Cache"))
+        {
+            return QString();
+        }
+
+        return dir.filePath("2048Plan/FacingTheWholeWorld/Cache");
+    }
+
+    void xorEncryptDecrypt(QByteArray &data)
+    {
+        if (data.isEmpty()) return;
+        xorEncryptDecrypt(data.data(), static_cast<size_t>(data.size()));
+    }
+
+    void minimizeActiveWindow()
+    {
+        QWindow* activeWindow = QGuiApplication::focusWindow();
+        if (activeWindow)
+        {
+            activeWindow->showMinimized();
+        }
     }
 
 }// namespace tool
