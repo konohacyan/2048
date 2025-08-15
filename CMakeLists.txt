@@ -1,101 +1,84 @@
-cmake_minimum_required(VERSION 3.10)
-project(2048Game)
-set(CMAKE_CXX_STANDARD 17)
+cmake_minimum_required(VERSION 3.16)
 
-# 自动处理MOC
+project(2048 VERSION 0.1 LANGUAGES CXX)
+
+set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
-set(CMAKE_AUTOUIC ON)
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
 
-# 检测编译器
-if(MSVC)
-    message(STATUS "Building with MSVC")
-    add_compile_options(/utf-8)
-elseif(MINGW)
-    message(STATUS "Building with MinGW")
-    add_definitions(-DMINGW)
-endif()
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# 设置Qt的qmake可执行文件路径
-if(UNIX)
-    # 如果是Unix系统，设置Qt的qmake可执行文件路径
-    set(QT_QMAKE_EXECUTABLE "/opt/Qt5.12.0/5.12.0/gcc_64/bin/qmake")
-    set(Qt5_DIR "/opt/Qt5.12.0/5.12.0/gcc_64/lib/cmake/Qt5")
-    set(CMAKE_PREFIX_PATH "/opt/Qt5.12.0/5.12.0/gcc_64")
-elseif(WIN32)
-    # 如果是Windows系统，设置Qt的qmake可执行文件路径
-    if(DEFINED ENV{QtPath} AND MSVC)
-        message(STATUS "Using MSVC, Using Qt ENV QtPath: $ENV{QtPath}")
-        set(QT_BIN_DIR "$ENV{QtPath}/msvc2017_64/bin")
-        set(Qt5_DIR "$ENV{QtPath}/msvc2017_64/lib/cmake/Qt5")
-        set(CMAKE_PREFIX_PATH "$ENV{QtPath}/msvc2017_64")
-        set(QT_QMAKE_EXECUTABLE "${QT_BIN_DIR}/qmake.exe")
-        # file(COPY 
-        #     "${QT_BIN_DIR}/Qt5Gui.dll"
-        #     "${QT_BIN_DIR}/Qt5Core.dll"
-        #     "${QT_BIN_DIR}/Qt5Widgets.dll"
-        #     DESTINATION ${CMAKE_BINARY_DIR})
-    else()
-        message(STATUS "Using MinGW, Default Qt Path")
-        set(QT_QMAKE_EXECUTABLE "D:/Qt/Qt5.0.12/5.12.0/mingw73_64/bin/qmake.exe")
-        set(Qt5_DIR "D:/Qt/Qt5.12.0/5.12.0/mingw73_64/lib/cmake/Qt5")
-        set(CMAKE_PREFIX_PATH "D:/Qt/Qt5.12.0/5.12.0/mingw73_64")
-    endif()
-else()
-    message(FATAL_ERROR "Unsupported platform")
-endif()
+find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets LinguistTools)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets LinguistTools)
 
-find_package(Qt5 COMPONENTS Core Gui Sql Widgets  REQUIRED)
+set(TS_FILES 2048_zh_CN.ts)
 
-
-# 生成对应的头文件
-qt5_wrap_ui(UI_HEADERS ${UI_FILES})
-
-add_executable(2048Game main.cpp Game.cpp
+set(PROJECT_SOURCES
+        main.cpp
+        mainwindow.cpp
+        mainwindow.h
+        mainwindow.ui
+        public_def.h
+        public_def.cpp
         public_func.h
         public_func.cpp
-        public_def.h
-        public_def.cpp)
+        game.h
+        game.cpp
+        ${TS_FILES}
+)
 
-# Windows 下用 windeployqt 部署 DLL
-if(WIN32 AND MSVC)
-    find_program(WINDEPLOYQT_EXECUTABLE NAMES windeployqt HINTS "${QT_BIN_DIR}")
-    if(WINDEPLOYQT_EXECUTABLE)
-        # 定义部署参数：Debug 用 --debug，Release 用 --release
-        set(WINDEPLOYQT_MODE "$<$<CONFIG:Debug>:--debug>$<$<CONFIG:Release>:--release>")
-        
-        add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-            COMMAND ${WINDEPLOYQT_EXECUTABLE} 
-                --no-translations 
-                ${WINDEPLOYQT_MODE} 
-                "$<TARGET_FILE_DIR:${PROJECT_NAME}>/$<TARGET_FILE_NAME:${PROJECT_NAME}>"
-            COMMENT "Deploying Qt libraries (${CMAKE_BUILD_TYPE}) with windeployqt"
+if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
+    qt_add_executable(2048
+        MANUAL_FINALIZATION
+        ${PROJECT_SOURCES}
+        base_class.h
+        board.h board.cpp
+    )
+# 为Qt 6的Android目标定义属性：
+#    set_property(TARGET 2048 APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
+#                 ${CMAKE_CURRENT_SOURCE_DIR}/android)
+# 更多信息参考：https://doc.qt.io/qt-6/qt-add-executable.html#target-creation
+
+    qt_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})
+else()
+    if(ANDROID)
+        add_library(2048 SHARED
+            ${PROJECT_SOURCES}
         )
+# 在find_package()调用后为Qt 5的Android定义属性：
+#    set(ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/android")
     else()
-        message(WARNING "windeployqt not found! Manual DLL deployment required.")
+        add_executable(2048
+            ${PROJECT_SOURCES}
+        )
     endif()
+
+    qt5_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})
 endif()
 
-# 设置可执行文件的运行时路径
-set_target_properties(${PROJECT_NAME} PROPERTIES
-    VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
-    INSTALL_RPATH ${QT_BIN_DIR}
-    INSTALL_RPATH_USE_LINK_PATH TRUE
+target_link_libraries(2048 PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
+
+# 从Qt 6.1开始，iOS版的Qt会自动设置MACOSX_BUNDLE_GUI_IDENTIFIER。
+# 但如果为iOS或macOS开发，仍应考虑手动设置一个明确的固定包标识符。
+if(${QT_VERSION} VERSION_LESS 6.1.0)
+  set(BUNDLE_ID_OPTION MACOSX_BUNDLE_GUI_IDENTIFIER com.example.2048)
+endif()
+set_target_properties(2048 PROPERTIES
+    ${BUNDLE_ID_OPTION}
+    MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
+    MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
+    MACOSX_BUNDLE TRUE
+    WIN32_EXECUTABLE TRUE
 )
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR})
-
-target_link_libraries(${PROJECT_NAME} PRIVATE
-    Qt5::Core
-    Qt5::Gui
-    Qt5::Sql
-    Qt5::Widgets
+include(GNUInstallDirs)
+install(TARGETS 2048
+    BUNDLE DESTINATION .
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
 
-if(MSVC)
-
-elseif(MINGW)
-    target_link_options(${PROJECT_NAME} PRIVATE "-Wl,--subsystem,console")
+if(QT_VERSION_MAJOR EQUAL 6)
+    qt_finalize_executable(2048)
 endif()

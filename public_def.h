@@ -1,11 +1,9 @@
 #ifndef INC_2048GAME_PUBLIC_DEF_H
 #define INC_2048GAME_PUBLIC_DEF_H
-#define _HAS_STD_BYTE 0     // 禁用std::byte 在包含任何Windows头文件之前添加：
 #include <iostream>
 #include <algorithm>
-// 以下是 windows 库
-//#include <conio.h>
 
+#include "base_class.h"
 using namespace std;
 
 // 简单的XOR加密密钥
@@ -25,7 +23,7 @@ typedef struct data_info_2048
     int count;
     int width;
     int height;
-    int** arr;
+    Tile** arr;
     data_info_2048()
     {
         score = 0;
@@ -33,10 +31,10 @@ typedef struct data_info_2048
         count = 0;
         width = 4;
         height = 4;
-        arr = new int*[height];
+        arr = new Tile*[height];
         for (int i = 0; i < height; i++)
         {
-            arr[i] = new int[width];
+            arr[i] = new Tile[width];
         }
     }
     ~data_info_2048()
@@ -64,10 +62,10 @@ typedef struct data_info_2048
     // 重新调整数组大小
     void resize(int newWidth, int newHeight)
     {
-        int** newArr = new int*[newHeight];
+        Tile** newArr = new Tile*[newHeight];
         for (int i = 0; i < newHeight; ++i)
         {
-            newArr[i] = new int[newWidth];
+            newArr[i] = new Tile[newWidth];
         }
 
         int minW = min(width, newWidth);
@@ -76,7 +74,7 @@ typedef struct data_info_2048
         {
             for (int j = 0; j < minW; ++j)
             {
-                newArr[i][j] = arr[i][j];
+                newArr[i][j] = arr[i][j].getValue();
             }
         }
 
@@ -91,9 +89,9 @@ typedef struct data_info_2048
         height = newHeight;
     }
     // 访问元素
-    int& at(int x, int y)
+    int at(int x, int y) const
     {
-        return arr[y][x];
+        return arr[y][x].getValue();
     }
     void print()
     {
@@ -101,11 +99,34 @@ typedef struct data_info_2048
         {
             for (int j = 0; j < width; ++j)
             {
-                cout << arr[i][j] << " ";
+                cout << arr[i][j].getValue() << " ";
             }
             cout << endl;
         }
     }
+    bool isGridFull() const
+    {
+        for (int i = 0; i < height; ++i)
+        {
+            for (int j = 0; j < width; ++j)
+            {
+                if (arr[i][j].getValue() ==  0)// 发现空格子
+                {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
 } DataInfo2048;
+
+
+enum class MoveDirection
+{
+    Up,
+    Down,
+    Left,
+    Right
+};
 
 #endif // INC_2048GAME_PUBLIC_DEF_H

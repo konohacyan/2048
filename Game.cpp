@@ -18,8 +18,13 @@ Game::Game()
             dataInfo.arr[i][j] = 0;
         }
     }
-    move = true;
+    is_move = true;
     dataInfo.count = 0;
+}
+
+int **Game::getBoard()
+{
+    return dataInfo.arr;
 }
 
 void Game::showMenu()
@@ -54,7 +59,7 @@ void Game::moveUp()
                 {
                     if (dataInfo.arr[index][i] == dataInfo.arr[j][i])
                     {
-                        move = true;
+                        is_move = true;
                         dataInfo.arr[index][i] += dataInfo.arr[j][i];
                         dataInfo.score += dataInfo.arr[j][i];
                         dataInfo.best = (((dataInfo.best) > (dataInfo.arr[index][i])) ? (dataInfo.best) : (dataInfo.arr[index][i]));
@@ -90,7 +95,7 @@ void Game::moveUp()
                         dataInfo.count++;
                         bMoveAdd = false;
                     }
-                    move = true;
+                    is_move = true;
                     dataInfo.arr[row][i] = dataInfo.arr[j][i];
                     dataInfo.arr[j][i] = 0;
                     row++;
@@ -118,7 +123,7 @@ void Game::moveDown()
                 {
                     if (dataInfo.arr[index][i] == dataInfo.arr[j][i])
                     {
-                        move = true;
+                        is_move = true;
                         dataInfo.arr[index][i] += dataInfo.arr[j][i];
                         dataInfo.score += dataInfo.arr[j][i];
                         dataInfo.best = (((dataInfo.best) > (dataInfo.arr[index][i])) ? (dataInfo.best) : (dataInfo.arr[index][i]));
@@ -154,7 +159,7 @@ void Game::moveDown()
                         dataInfo.count++;
                         bMoveAdd = false;
                     }
-                    move = true;
+                    is_move = true;
                     dataInfo.arr[row][i] = dataInfo.arr[j][i];
                     dataInfo.arr[j][i] = 0;
                     row--;
@@ -182,7 +187,7 @@ void Game::moveLeft()
                 {
                     if (dataInfo.arr[i][index] == dataInfo.arr[i][j])
                     {
-                        move = true;
+                        is_move = true;
                         dataInfo.arr[i][index] += dataInfo.arr[i][j];
                         dataInfo.score += dataInfo.arr[i][j];
                         dataInfo.best = (((dataInfo.best) > (dataInfo.arr[i][index])) ? (dataInfo.best) : (dataInfo.arr[i][index]));
@@ -217,7 +222,7 @@ void Game::moveLeft()
                         dataInfo.count++;
                         bMoveAdd = false;
                     }
-                    move = true;
+                    is_move = true;
                     dataInfo.arr[i][row] = dataInfo.arr[i][j];
                     dataInfo.arr[i][j] = 0;
                     row++;
@@ -245,7 +250,7 @@ void Game::moveRight()
                 {
                     if (dataInfo.arr[i][index] == dataInfo.arr[i][j])
                     {
-                        move = true;
+                        is_move = true;
                         dataInfo.arr[i][index] += dataInfo.arr[i][j];
                         dataInfo.score += dataInfo.arr[i][j];
                         dataInfo.best = (((dataInfo.best) > (dataInfo.arr[i][index])) ? (dataInfo.best) : (dataInfo.arr[i][index]));
@@ -280,7 +285,7 @@ void Game::moveRight()
                         dataInfo.count++;
                         bMoveAdd = false;
                     }
-                    move = true;
+                    is_move = true;
                     dataInfo.arr[i][row] = dataInfo.arr[i][j];
                     dataInfo.arr[i][j] = 0;
                     row--;
@@ -354,6 +359,19 @@ bool Game::size()
     return false;
 }
 
+void Game::move(MoveDirection direction)
+{
+    switch (direction)
+    {
+        case MoveDirection::Up: moveUp(); break;
+        case MoveDirection::Down: moveDown(); break;
+        case MoveDirection::Left: moveLeft(); break;
+        case MoveDirection::Right: moveRight(); break;
+        default:
+            break;
+    }
+}
+
 void Game::startGame()
 {
     bool is_start = true;
@@ -368,7 +386,7 @@ void Game::startGame()
         system("clear");
 #endif
 
-        if (move)
+        if (is_move)
         {
             // 随机生成一个空格位置
             std::vector<std::pair<int, int>> emptyCells;
@@ -385,7 +403,7 @@ void Game::startGame()
                 std::uniform_int_distribution<> dis(0, static_cast<int>(emptyCells.size()) - 1);
                 auto [ran_i, ran_j] = emptyCells[dis(gen)];
                 dataInfo.arr[ran_i][ran_j] = 2;
-                move = false;
+                is_move = false;
             }
         }
 
@@ -438,7 +456,7 @@ void Game::startGame()
         if (arr_full)
         {
             dataInfo.clear();
-            move = true;
+            is_move = true;
             std::cout << "Game Over!" << std::endl;
             std::cout << "Press Enter to continue..." << std::endl;
             std::cin.ignore();

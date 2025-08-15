@@ -1,49 +1,25 @@
-#include<iostream>
-#include <limits>
-using namespace std;
-#include"Game.h"
+#include "mainwindow.h"
 
-int main()
+#include <QApplication>
+#include <QLocale>
+#include <QTranslator>
+
+int main(int argc, char *argv[])
 {
-    //srand((unsigned int)time(NULL));
-    Game g;
-    while (true)
+    QApplication a(argc, argv);
+
+    QTranslator translator;
+    const QStringList uiLanguages = QLocale::system().uiLanguages();
+    for (const QString &locale: uiLanguages)
     {
-        g.showMenu();
-        int select;
-        cin >> select;
-        if (cin.fail())
+        const QString baseName = "2048_" + QLocale(locale).name();
+        if (translator.load(":/i18n/" + baseName))
         {
-            cin.clear();
-            cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-            cout << "Incorrect input!" << endl;
-            system("pause");
-            system("cls");
-            continue;
-        }
-        switch (select)
-        {
-            case 1:
-                g.startGame();
-                //system("pause");
-                system("cls");
-                break;
-            case 2:
-                cout << "wait dev" << endl;
-                system("pause");
-                system("cls");
-                break;
-            case 3:
-                g.exitGame();
-                break;
-            default:
-                cout << "Incorrect input!" << endl;
-                system("pause");
-                system("cls");
+            a.installTranslator(&translator);
+            break;
         }
     }
-
-    system("pause");
-    return 0;
+    MainWindow w;
+    w.show();
+    return a.exec();
 }
-

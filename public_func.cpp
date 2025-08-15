@@ -1,4 +1,4 @@
-#include <public_func.h>
+#include "public_func.h"
 #include <QStandardPaths>
 #include <QDir>
 #include <QGuiApplication>
