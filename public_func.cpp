@@ -5,6 +5,14 @@
 #include <QWindow>
 #include <QRandomGenerator>
 #include <QDebug>
+#include <algorithm>
+#include <codecvt>
+#include <locale>
+#include <random>
+#include <string>
+#include <string_view>
+#include <vector>
+#include <filesystem>
 namespace tool
 {
     bool isProcessRunning(const  QString &processName)

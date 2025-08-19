@@ -9,15 +9,22 @@
 **/
 class Board : public Subject
 {
+    using TilePtr = QSharedPointer<Tile>;
 public:
     Board();
     Board(const Board& other);
     ~Board();
-    void move(MoveDirection direction);
-    int getValue(const QPoint&  potin);
-    int getDataHeigth();
+    void move(const MoveDirection& direction);
+    int getValue(const int& x, const int& y);
+    TilePtr getTile(const int& x, const int& y);
+    int getDataHeight();
     int getDataWidth();
     bool movePossible() const;  // 是否可以移动
+    void clear();
+    int getScore();
+    int getBest();
+    int getCount();
+    void reset();
 private:
     void moveUp();
     void moveDown();

@@ -34,6 +34,8 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         ${PROJECT_SOURCES}
         base_class.h
         board.h board.cpp
+        qgameboard.h qgameboard.cpp
+        qtile.h qtile.cpp
     )
 # 为Qt 6的Android目标定义属性：
 #    set_property(TARGET 2048 APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR

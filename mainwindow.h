@@ -4,7 +4,8 @@
 #include <QGraphicsScene>
 #include <QMainWindow>
 #include <QPropertyAnimation>
-#include "game.h"
+#include "qgameboard.h"
+
 
 QT_BEGIN_NAMESPACE
 namespace Ui
@@ -12,9 +13,6 @@ namespace Ui
     class MainWindow;
 }
 QT_END_NAMESPACE
-
-class QGraphicsRectItem;
-class QLabel;
 
 class MainWindow : public QMainWindow
 {
@@ -25,7 +23,7 @@ public:
     ~MainWindow();
 
 protected:
-    void keyPressEvent(QKeyEvent *event) override;
+
 
 private slots:
 
@@ -33,8 +31,6 @@ private slots:
 private:
     // Ui::MainWindow *ui;
     void setupUI();
-
-    Game game;
-
+    QGameBoard* gameBoard;
 };
 #endif// MAINWINDOW_H

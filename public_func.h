@@ -1,14 +1,6 @@
 #ifndef INC_2048GAME_PUBLIC_FUNC_H
 #define INC_2048GAME_PUBLIC_FUNC_H
 
-#include <algorithm>
-#include <codecvt>
-#include <locale>
-#include <random>
-#include <string>
-#include <string_view>
-#include <vector>
-#include <filesystem>
 #include "public_def.h"
 
 #include <QProcess>

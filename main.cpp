@@ -1,8 +1,7 @@
-#include "mainwindow.h"
-
 #include <QApplication>
 #include <QLocale>
 #include <QTranslator>
+#include "qgameboard.h"
 
 int main(int argc, char *argv[])
 {
@@ -19,7 +18,10 @@ int main(int argc, char *argv[])
             break;
         }
     }
-    MainWindow w;
-    w.show();
+    srand(time(NULL));
+    // MainWindow w;
+    // w.show();
+    QGameBoard gameBoard;
+    gameBoard.show();
     return a.exec();
 }

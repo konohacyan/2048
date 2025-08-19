@@ -1,8 +1,7 @@
 #ifndef INC_2048GAME_PUBLIC_DEF_H
 #define INC_2048GAME_PUBLIC_DEF_H
-#include <iostream>
-#include <algorithm>
-
+#include <QVector>
+#include <QSharedPointer>
 #include "base_class.h"
 using namespace std;
 
@@ -15,109 +14,35 @@ extern const int REMOTE_DB_PORT;       // 远程数据库端口
 extern const string REMOTE_DB_USERNAME; // 远程数据库用户名
 extern const string REMOTE_DB_PASSWORD; // 远程数据库密码
 extern const string DEFAULT_SCHEMA ;// 默认数据库名，根据实际情况修改
-
+using TilePtr = QSharedPointer<Tile>;
 typedef struct data_info_2048
 {
-    int score;
-    int best;
-    int count;
+    int score;  // 积分
+    int best;   // 最高数值
+    int count;  // 合成次数
     int width;
     int height;
-    Tile** arr;
-    data_info_2048()
-    {
-        score = 0;
-        best = 0;
-        count = 0;
-        width = 4;
-        height = 4;
-        arr = new Tile*[height];
-        for (int i = 0; i < height; i++)
-        {
-            arr[i] = new Tile[width];
-        }
-    }
-    ~data_info_2048()
-    {
-        for (int i = 0; i < height; ++i)
-        {
-            delete[] arr[i];
-        }
-        delete[] arr;
-    }
+    QVector<QVector<TilePtr>> grid;
+    data_info_2048(int w = 4, int h = 4);
 
-    void clear()
-    {
-        for (int i = 0; i < height; i++)
-        {
-            for (int j = 0; j < width; j++)
-            {
-                arr[i][j] = 0;
-            }
-        }
-        score = 0;
-        best = 0;
-        count = 0;
-    }
+    // 只清空积分和棋子数值，不清理棋盘宽度和最高数值
+    void clear();
     // 重新调整数组大小
     void resize(int newWidth, int newHeight)
     {
-        Tile** newArr = new Tile*[newHeight];
-        for (int i = 0; i < newHeight; ++i)
-        {
-            newArr[i] = new Tile[newWidth];
-        }
-
-        int minW = min(width, newWidth);
-        int minH = min(height, newHeight);
-        for (int i = 0; i < minH; ++i)
-        {
-            for (int j = 0; j < minW; ++j)
-            {
-                newArr[i][j] = arr[i][j].getValue();
-            }
-        }
-
-        for (int i = 0; i < height; ++i)
-        {
-            delete[] arr[i];
-        }
-        delete[] arr;
-
-        arr = newArr;
-        width = newWidth;
-        height = newHeight;
+         resizeGrid(newWidth, newHeight);
     }
     // 访问元素
-    int at(int x, int y) const
-    {
-        return arr[y][x].getValue();
-    }
-    void print()
-    {
-        for (int i = 0; i < height; ++i)
-        {
-            for (int j = 0; j < width; ++j)
-            {
-                cout << arr[i][j].getValue() << " ";
-            }
-            cout << endl;
-        }
-    }
-    bool isGridFull() const
-    {
-        for (int i = 0; i < height; ++i)
-        {
-            for (int j = 0; j < width; ++j)
-            {
-                if (arr[i][j].getValue() ==  0)// 发现空格子
-                {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
+    int atValue(int x, int y) const;
+
+    TilePtr& atTile(int x, int y);
+
+    bool isGridFull() const;
+
+private:
+    // 调整棋盘大小
+    void resizeGrid(int w, int h);
+
 } DataInfo2048;
 
 
@@ -129,4 +54,15 @@ enum class MoveDirection
     Right
 };
 
+/**
+@brief 摸鱼配色方案
+**/
+enum class ColorScheme
+{
+    cLightGray, // 极浅灰（接近白色但更柔和）办公室环境，伪装成文档编辑器。
+    cLightGreen, // 极浅绿（低调护眼）​类似 IDE 或代码编辑器的背景色，适合伪装成在工作。
+    cTerminalBlack, // 终端黑（极简深色）适合搭配暗色终端/编辑器风格（如 VS Code 暗黑主题）
+    cPaperBeige,    // 纸质米黄（伪装成笔记软件）​模仿 OneNote/Evernote 的纸张底色，摸鱼时像在记笔记
+    cGuiseExecl,    // 伪装Execl（经典办公风格）​完全模仿 Excel 表格样式，完美融入办公场景
+};
 #endif // INC_2048GAME_PUBLIC_DEF_H

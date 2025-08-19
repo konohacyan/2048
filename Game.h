@@ -1,35 +1,24 @@
 #pragma once
-#include <iostream>
-#include <algorithm>
+#include <QSharedPointer>
 #include "public_def.h"
-// 以下是 windows 库
-#include <conio.h>
+#include "base_class.h"
 using namespace std;
-
-class Game
+class Board;
+class Game : public Subject
 {
+    using BoardPtr = QSharedPointer<Board>;
 public:
 	Game();
-    int** getBoard();
-	void showMenu();
-	void exitGame();
-	void moveAdd(int key);
-	void startGame();
-	void showRanking();
-	bool size();
-
-    void move(MoveDirection direction);
-	void moveUp();
-	void moveDown();
-	void moveLeft();
-	void moveRight();
-
-    bool checkSaveLocalDate();
-    void saveDate2Local();
-    void loadLocalDate();
-    void saveDate2RemoteDatabase();
-
+    void restart();
+    bool isGameOver() const;
+    bool isWin() const;
+    BoardPtr getBoard() const;
+    void move(const MoveDirection& direction);
+    int getHeight();
+    int getWidth();
 private:
     bool is_move;
-    DataInfo2048 dataInfo;
+    BoardPtr board;
+    bool gameOver;
+    const int winValue = 2048;
 };
