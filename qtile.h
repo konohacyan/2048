@@ -10,11 +10,13 @@ class QTile : public QLabel
     using TilePtr = QSharedPointer<Tile>;
 public:
     QTile(TilePtr tile);
-    void ChangeTheme(const ColorScheme& cs);
+    void ChangeTheme();
     void draw();
+    void setColorScheme(const ColorScheme& cs);
 private:
+    void updateTileAppearance();
     TilePtr tile;
-
+    ColorScheme scheme;
 };
 
 #endif// QTILE_H

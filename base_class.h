@@ -35,8 +35,8 @@ public:
     Tile() { value = 2; upgratedThisMove = false; }
     Tile(const Tile& other) { this->value = other.value; }
     Tile(int value) { this->value = value; }
-    int& getValue() { return value; }
-    void setValue(const int& v) {this->value = v;}
+    int getValue() { return value; }
+    void setValue(int v) {this->value = v;}
     void upgrade() { value *= UP_FACTOR; }
     void setUpgratedThisMove(bool updated) { this->upgratedThisMove = updated; }
     bool getUpgratedThisMove() const { return this->upgratedThisMove; }

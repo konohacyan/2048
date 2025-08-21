@@ -17,12 +17,15 @@ QGameBoard::QGameBoard(QWidget *parent) : QWidget(parent)
 
     game->registerObserver(QSharedPointer<Observer>(this));
 
+
+    // 初始化棋盘格子指针
     gui_board.resize(game->getBoard()->getDataHeight());
     for (int i = 0; i < game->getBoard()->getDataWidth(); ++i)
         gui_board[i].resize(game->getBoard()->getDataHeight());
     for (int i = 0; i < game->getBoard()->getDataHeight(); ++i)
         for (int j = 0; j < game->getBoard()->getDataWidth(); ++j)
             gui_board[i][j].reset();
+
     drawBoard();
 
     score = new QLabel(QString("积分: %1   合成次数: %1   最高合成数: %1").arg(game->getBoard()->getScore()).
@@ -32,8 +35,9 @@ QGameBoard::QGameBoard(QWidget *parent) : QWidget(parent)
     score->setFixedHeight(50);
     mainLayout->insertWidget(1, score, 0, Qt::AlignRight);
 
-    ChangeTheme(ColorScheme::cTerminalBlack);
-
+    setStyleSheet("QGameBoard { background-color: rgb(187,173,160) }"); // 经典
+    // scheme = ColorScheme::cDefault;
+    // ChangeTheme();
 }
 
 void QGameBoard::notify()
@@ -65,17 +69,20 @@ void QGameBoard::keyPressEvent(QKeyEvent *event)
     }
 }
 
-void QGameBoard::ChangeTheme(const ColorScheme &cs)
+void QGameBoard::ChangeTheme()
 {
     for (int i = 0; i < gui_board.size(); ++i)
     {
         for (int j = 0; j < gui_board[i].size(); ++j)
         {
-            gui_board[i][j]->ChangeTheme(cs);
+            gui_board[i][j]->setColorScheme(scheme);
         }
     }
-    switch (cs)
+    switch (scheme)
     {
+        case ColorScheme:: cDefault:
+            setStyleSheet("QGameBoard { background-color: rgb(187,173,160) }"); // 经典
+            break;
         case ColorScheme::cLightGray:
             setStyleSheet("QGameBoard {"
                           "   background-color: rgb(245, 245, 245);"  // 极浅灰

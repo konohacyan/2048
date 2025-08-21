@@ -24,7 +24,7 @@ public:
     int getScore();
     int getBest();
     int getCount();
-    void reset();
+    void restart();
 private:
     void moveUp();
     void moveDown();
@@ -32,6 +32,11 @@ private:
     void moveRight();
     QPoint freePosition();  ///< 随机生成位置
     bool changed(Board& other) const;
+    void moveHorizontally(const int& i, const int& j, const MoveDirection& dir);    ///< 水平移动
+    void moveVertically(const int& i, const int& j, const MoveDirection& dir);      ///< 垂直移动
+    bool inbounds(const int& i, const int& j);
+    void handleCollision(const int& i, const int& j); ///< 碰撞处理
+    void prepareForNextMove();  ///< 准备下一轮
     DataInfo2048 dataInfo;
 
 };

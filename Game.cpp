@@ -8,7 +8,7 @@ Game::Game()
 
 void Game::restart()
 {
-    board;
+    board->restart();
 }
 
 bool Game::isGameOver() const

@@ -28,7 +28,7 @@ protected:
     void keyPressEvent(QKeyEvent *event) override;
 
 private:
-    void ChangeTheme(const ColorScheme& cs);
+    void ChangeTheme();
 
 signals:
 
@@ -42,6 +42,7 @@ private:
     QVector<QVector<QTilePtr>> gui_board;
     QVBoxLayout *mainLayout;
     QGridLayout *boardLayout;
+    ColorScheme scheme;     ///< 主题配色
 };
 
 #endif// QGAMEBOARD_H

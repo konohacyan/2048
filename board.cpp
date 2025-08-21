@@ -1,13 +1,13 @@
 #include "board.h"
 
-Board::Board()
+Board::Board() : dataInfo(DataInfo2048(4,4))
 {
     dataInfo.clear();
 }
 
-Board::Board(const Board &other)
+Board::Board(const Board &other) : dataInfo(other.dataInfo)
 {
-    dataInfo = other.dataInfo;
+
 }
 
 Board::~Board()
@@ -18,6 +18,7 @@ Board::~Board()
 void Board::move(const MoveDirection &direction)
 {
     Board pre_move_board(*this);
+    prepareForNextMove();
     switch (direction)
     {
         case MoveDirection::Up: moveUp(); break;
@@ -27,7 +28,8 @@ void Board::move(const MoveDirection &direction)
         default:
             break;
     }
-    if (changed(pre_move_board) /*&& !tileCollisionLastRound*/) {
+    if (changed(pre_move_board))
+    {
         QPoint newpos = freePosition();
         dataInfo.atTile(newpos.x(), newpos.y()) = TilePtr::create();
     }
@@ -97,267 +99,42 @@ int Board::getCount()
     return dataInfo.count;
 }
 
-void Board::reset()
+void Board::restart()
 {
     dataInfo.clear();
 
     QPoint point = freePosition();
-    dataInfo.atTile(point.x(), point.y()) = TilePtr::create();
+    dataInfo.setTile(point.x(), point.y(), TilePtr::create());
     point = freePosition();
-    dataInfo.atTile(point.x(), point.y()) = TilePtr::create();
+    dataInfo.setTile(point.x(), point.y(), TilePtr::create());
 }
 
 void Board::moveUp()
 {
-    bool bMoveAdd = true;
-    for (int i = 0; i < dataInfo.width; i++)
-    {
-        int index = -1;
-        for (int j = 0; j < dataInfo.height; j++)
-        {
-            if (dataInfo.grid[j][i] != nullptr)
-            {
-                if (index != -1)
-                {
-                    if (dataInfo.grid[index][i] == dataInfo.grid[j][i])
-                    {
-                        // is_move = true;
-                        dataInfo.grid[index][i]->getValue() += dataInfo.grid[j][i]->getValue();
-                        dataInfo.score += dataInfo.grid[j][i]->getValue();
-                        dataInfo.best = (((dataInfo.best) > (dataInfo.grid[index][i])->getValue()) ? (dataInfo.best) : (dataInfo.grid[index][i]->getValue()));
-                        if(bMoveAdd)
-                        {
-                            dataInfo.count++;
-                            bMoveAdd = false;
-                        }
-                        dataInfo.grid[j][i].reset();
-                        index = -1;
-                    }
-                    else
-                    {
-                        index = j;
-                    }
-                }
-                else
-                {
-                    index = j;
-                }
-            }
-        }
-
-        int row = 0;
-        for (int j = 1; j < dataInfo.height; j++)
-        {
-            if (dataInfo.grid[row][i]->getValue() == 0)
-            {
-                if (dataInfo.grid[j][i]->getValue() != 0)
-                {
-                    if(bMoveAdd)
-                    {
-                        dataInfo.count++;
-                        bMoveAdd = false;
-                    }
-                    // is_move = true;
-                    dataInfo.grid[row][i]->getValue()= dataInfo.grid[j][i]->getValue();
-                    dataInfo.grid[j][i].reset();
-                    row++;
-                }
-            }
-            else
-            {
-                row++;
-            }
-        }
-    }
+    for (int i = 0; i < dataInfo.width; ++i)
+        for (int j = 0; j < dataInfo.height; ++j)
+            moveVertically(i, j, MoveDirection::Up);
 }
 
 void Board::moveDown()
 {
-    bool bMoveAdd = true;
-    for (int i = 0; i < dataInfo.width; i++)
-    {
-        int index = -1;
-        for (int j = dataInfo.height - 1; j >= 0; j--)
-        {
-            if (dataInfo.grid[j][i] != nullptr)
-            {
-                if (index != -1)
-                {
-                    if (dataInfo.grid[index][i] == dataInfo.grid[j][i])
-                    {
-                        // is_move = true;
-                        dataInfo.grid[index][i]->getValue() += dataInfo.grid[j][i]->getValue();
-                        dataInfo.score += dataInfo.grid[j][i]->getValue();
-                        dataInfo.best = (((dataInfo.best) > (dataInfo.grid[index][i])->getValue()) ? (dataInfo.best) : (dataInfo.grid[index][i])->getValue());
-                        if(bMoveAdd)
-                        {
-                            dataInfo.count++;
-                            bMoveAdd = false;
-                        }
-                        dataInfo.grid[j][i].reset();
-                        index = -1;
-                    }
-                    else
-                    {
-                        index = j;
-                    }
-                }
-                else
-                {
-                    index = j;
-                }
-            }
-        }
-        int row = dataInfo.height - 1;
-        for (int j = dataInfo.height - 2; j >= 0; j--)
-        {
-            if (dataInfo.grid[row][i] == nullptr)
-            {
-                if (dataInfo.grid[j][i] != nullptr)
-                {
-                    if(bMoveAdd)
-                    {
-                        dataInfo.count++;
-                        bMoveAdd = false;
-                    }
-                    // is_move = true;
-                    dataInfo.grid[row][i]->getValue() = dataInfo.grid[j][i]->getValue();
-                    dataInfo.grid[j][i].reset();
-                    row--;
-                }
-            }
-            else
-            {
-                row--;
-            }
-        }
-    }
+    for (int i = dataInfo.width -1; i >= 0; --i)
+        for (int j = 0; j < dataInfo.height; ++j)
+            moveVertically(i, j, MoveDirection::Down);
 }
 
 void Board::moveLeft()
 {
-    bool bMoveAdd = true;
-    for (int i = 0; i < dataInfo.height; i++)
-    {
-        int index = -1;
-        for (int j = 0; j < dataInfo.width; j++)
-        {
-            if (dataInfo.grid[i][j] != nullptr)
-            {
-                if (index != -1)
-                {
-                    if (dataInfo.grid[i][index] == dataInfo.grid[i][j])
-                    {
-                        // is_move = true;
-                        dataInfo.grid[i][index]->getValue() += dataInfo.grid[i][j]->getValue();
-                        dataInfo.score += dataInfo.grid[i][j]->getValue();
-                        dataInfo.best = (((dataInfo.best) > (dataInfo.grid[i][index])->getValue()) ? (dataInfo.best) : (dataInfo.grid[i][index])->getValue());
-                        if(bMoveAdd)
-                        {
-                            dataInfo.count++;
-                            bMoveAdd = false;
-                        }
-                        dataInfo.grid[i][j].reset();
-                        index = -1;
-                    }
-                    else
-                    {
-                        index = j;
-                    }
-                }
-                else
-                {
-                    index = j;
-                }
-            }
-        }
-        int row = 0;
-        for (int j = 1; j < dataInfo.width; j++)
-        {
-            if (dataInfo.grid[i][row] == nullptr)
-            {
-                if (dataInfo.grid[i][j] != nullptr)
-                {
-                    if(bMoveAdd)
-                    {
-                        dataInfo.count++;
-                        bMoveAdd = false;
-                    }
-                    // is_move = true;
-                    dataInfo.grid[i][row]->getValue() = dataInfo.grid[i][j]->getValue();
-                    dataInfo.grid[i][j].reset();
-                    row++;
-                }
-            }
-            else
-            {
-                row++;
-            }
-        }
-    }
+    for (int i = 0; i < dataInfo.width; ++i)
+        for (int j = 0; j < dataInfo.height; ++j)
+            moveHorizontally(i, j, MoveDirection::Left);
 }
 
 void Board::moveRight()
 {
-    bool bMoveAdd = true;
-    for (int i = 0; i < dataInfo.height; i++)
-    {
-        int index = -1;
-        for (int j = dataInfo.width - 1; j >= 0; j--)
-        {
-            if (dataInfo.grid[i][j] != nullptr)
-            {
-                if (index != -1)
-                {
-                    if (dataInfo.grid[i][index] == dataInfo.grid[i][j])
-                    {
-                        // is_move = true;
-                        dataInfo.grid[i][index]->getValue() += dataInfo.grid[i][j]->getValue();
-                        dataInfo.score += dataInfo.grid[i][j]->getValue();
-                        dataInfo.best = (((dataInfo.best) > (dataInfo.grid[i][index]->getValue())) ? (dataInfo.best) : (dataInfo.grid[i][index]->getValue()));
-                        if(bMoveAdd)
-                        {
-                            dataInfo.count++;
-                            bMoveAdd = false;
-                        }
-                        dataInfo.grid[i][j].reset();
-                        index = -1;
-                    }
-                    else
-                    {
-                        index = j;
-                    }
-                }
-                else
-                {
-                    index = j;
-                }
-            }
-        }
-        int row = dataInfo.width - 1;
-        for (int j = dataInfo.width - 2; j >= 0; j--)
-        {
-            if (dataInfo.grid[i][row] == nullptr)
-            {
-                if (dataInfo.grid[i][j] != nullptr)
-                {
-                    if(bMoveAdd)
-                    {
-                        dataInfo.count++;
-                        bMoveAdd = false;
-                    }
-                    // is_move = true;
-                    dataInfo.grid[i][row]->getValue() = dataInfo.grid[i][j]->getValue();
-                    dataInfo.grid[i][j].reset();
-                    row--;
-                }
-            }
-            else
-            {
-                row--;
-            }
-        }
-    }
+    for (int i = 0; i < dataInfo.width; ++i)
+        for (int j = dataInfo.height-1; j >= 0; --j)
+            moveHorizontally(i, j, MoveDirection::Right);
 }
 
 
@@ -373,9 +150,9 @@ QPoint Board::freePosition()
     {
         int i,j;
         do {
-            i = rand() % dataInfo.height;
-            j = rand() % dataInfo.width;
-        } while (dataInfo.atValue(i,j) != 0);
+            i = rand() % dataInfo.width;
+            j = rand() % dataInfo.height;
+        } while (dataInfo.atValue(i,j) >= 0);
         pos.setX(i);
         pos.setY(j);
     }
@@ -386,12 +163,139 @@ bool Board::changed(Board &other) const
 {
     if (dataInfo.height != other.getDataHeight() && dataInfo.width != other.getDataWidth())
         return false;
-    for (int i = 0; i < dataInfo.height; i++)
-        for (int j = 0; j < dataInfo.width; ++j)
+    for (int i = 0; i < dataInfo.width; i++)
+        for (int j = 0; j < dataInfo.height; ++j)
             if ( ( (dataInfo.atValue(i,j) == 0 && other.dataInfo.atValue(i,j) != 0) ||
                  (dataInfo.atValue(i,j) != 0 && other.dataInfo.atValue(i,j) == 0) ) ||
                 ( (dataInfo.atValue(i,j) != 0 && other.dataInfo.atValue(i,j) != 0) &&
                  dataInfo.atValue(i,j) != other.dataInfo.atValue(i,j)) )
                 return true;
     return false;
+}
+
+void Board::moveHorizontally(const int &i, const int &j, const MoveDirection &dir)
+{
+    if (dataInfo.atTile(i,j) != nullptr)
+    {
+        bool tileCollision = false;
+        int newj;
+        if (dir == MoveDirection::Right)
+            newj = j + 1;
+        else
+            newj = j - 1;
+
+        while (inbounds(i,newj) && dataInfo.atTile(i,newj) == nullptr) {
+            if (dir == MoveDirection::Right)
+                newj++;
+            else
+                newj--;
+        }
+
+        if (!inbounds(i,newj))
+        {
+            if (dir == MoveDirection::Right)
+                dataInfo.atTile(i,dataInfo.height - 1) = dataInfo.atTile(i,j);
+            else
+                dataInfo.atTile(i,0) = dataInfo.atTile(i,j);
+        }
+        else
+        {
+            if (dataInfo.atTile(i,newj)->getValue() == dataInfo.atTile(i,j)->getValue() && !dataInfo.atTile(i,newj)->getUpgratedThisMove())
+            {
+
+                tileCollision = true;
+                handleCollision(i, newj);
+            }
+            else
+            {
+                if (dir == MoveDirection::Right)
+                    dataInfo.atTile(i,newj - 1) = dataInfo.atTile(i,j);
+                else
+                    dataInfo.atTile(i,newj + 1) = dataInfo.atTile(i,j);
+            }
+        }
+        if ( (dir == MoveDirection::Right && newj-1 != j) || (dir == MoveDirection::Left && newj+1 != j) || tileCollision )
+            dataInfo.atTile(i,j).reset();
+
+        // if (tileCollision)
+        //     tileCollisionLastRound = true;
+    }
+}
+
+void Board::moveVertically(const int &i, const int &j, const MoveDirection &dir)
+{
+    if (dataInfo.atTile(i,j) != nullptr)
+    {
+        bool tileCollision = false;
+        int newi;
+        if (dir == MoveDirection::Up)
+            newi = i - 1;
+        else
+            newi = i + 1;
+
+        while (inbounds(newi,j) && dataInfo.atTile(newi,j) == nullptr)
+        {
+            if (dir == MoveDirection::Up)
+                newi--;
+            else
+                newi++;
+        }
+
+        if (!inbounds(newi,j))
+        {
+            if (dir == MoveDirection::Up)
+                dataInfo.atTile(0,j) = dataInfo.atTile(i,j);
+            else
+               dataInfo.atTile(dataInfo.width - 1,j) = dataInfo.atTile(i,j);
+        }
+        else
+        {
+            if (dataInfo.atTile(newi,j)->getValue() == dataInfo.atTile(i,j)->getValue() && !dataInfo.atTile(newi,j)->getUpgratedThisMove())
+            {
+                tileCollision = true;
+                handleCollision(newi, j);
+            }
+            else
+            {
+                if (dir == MoveDirection::Up)
+                    dataInfo.atTile(newi+1,j) = dataInfo.atTile(i,j);
+                else
+                    dataInfo.atTile(newi-1,j) = dataInfo.atTile(i,j);
+            }
+        }
+
+        if ( (dir == MoveDirection::Up && newi+1 != i) || (dir == MoveDirection::Down && newi-1 != i) || tileCollision )
+            dataInfo.atTile(i,j) = nullptr;
+
+        // if (tileCollision)
+        //     tileCollisionLastRound = true;
+    }
+
+}
+
+bool Board::inbounds(const int &i, const int &j)
+{
+    return (i >= 0 && j >= 0 && i < dataInfo.width && j < dataInfo.height);
+}
+
+void Board::handleCollision(const int &i, const int &j)
+{
+    dataInfo.atTile(i,j)->upgrade();
+    dataInfo.atTile(i,j)->setUpgratedThisMove(true);
+    dataInfo.score += dataInfo.atValue(i,j);
+}
+
+void Board::prepareForNextMove()
+{
+    dataInfo.score = 0;
+    for (int i = 0; i < dataInfo.width; ++i)
+    {
+        for (int j = 0; j < dataInfo.height; ++j)
+        {
+            if (dataInfo.atTile(i,j) != nullptr)
+            {
+                dataInfo.atTile(i,j)->setUpgratedThisMove(false);
+            }
+        }
+    }
 }

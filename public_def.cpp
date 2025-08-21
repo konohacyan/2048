@@ -8,7 +8,6 @@ const string REMOTE_DB_USERNAME = "xiuxian";
 const string REMOTE_DB_PASSWORD = "ef8ead2a1a2704c4";
 const string DEFAULT_SCHEMA = "";
 
-
 data_info_2048::data_info_2048(int w, int h) : score(0), best(0), count(0), width(w), height(h)
 {
     resizeGrid(width, height);
@@ -37,9 +36,14 @@ int data_info_2048::atValue(int x, int y) const
     return grid[y][x]->getValue();
 }
 
-TilePtr &data_info_2048::atTile(int x, int y)
+TilePtr &data_info_2048::atTile(const int &x, const int &y)
 {
     return grid[y][x];
+}
+
+void data_info_2048::setTile(const int &x, const int &y, TilePtr tile)
+{
+    grid[y][x] = tile;
 }
 
 bool data_info_2048::isGridFull() const

@@ -35,8 +35,8 @@ typedef struct data_info_2048
     // 访问元素
     int atValue(int x, int y) const;
 
-    TilePtr& atTile(int x, int y);
-
+    TilePtr& atTile(const int& x, const int& y);
+    void setTile(const int& x, const int& y, TilePtr tile);
     bool isGridFull() const;
 
 private:
@@ -59,6 +59,7 @@ enum class MoveDirection
 **/
 enum class ColorScheme
 {
+    cDefault,   // 经典主题
     cLightGray, // 极浅灰（接近白色但更柔和）办公室环境，伪装成文档编辑器。
     cLightGreen, // 极浅绿（低调护眼）​类似 IDE 或代码编辑器的背景色，适合伪装成在工作。
     cTerminalBlack, // 终端黑（极简深色）适合搭配暗色终端/编辑器风格（如 VS Code 暗黑主题）
