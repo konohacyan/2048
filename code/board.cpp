@@ -289,7 +289,7 @@ void Board::handleCollision(const int &i, const int &j)
 
 void Board::prepareForNextMove()
 {
-    dataInfo.score = 0;
+    // dataInfo.score = 0;
     for (int i = 0; i < dataInfo.width; ++i)
     {
         for (int j = 0; j < dataInfo.height; ++j)

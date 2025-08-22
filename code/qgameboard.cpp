@@ -28,9 +28,11 @@ QGameBoard::QGameBoard(QWidget *parent) : QWidget(parent)
 
     drawBoard();
 
-    score = new QLabel(QString("积分: %1   合成次数: %1   最高合成数: %1").arg(game->getBoard()->getScore()).
+    score = new QLabel(QString("积分: %1   合成次数: %2   最大合成数: %3").arg(game->getBoard()->getScore()).
                        arg(game->getBoard()->getCount()).
                        arg(game->getBoard()->getBest()));
+    QFont font("SimHei", 12, QFont::Bold, true);
+    score->setFont(font);
     score->setStyleSheet("QLabel { color: rgb(235,224,214); font: 16pt; }");
     score->setFixedHeight(50);
     mainLayout->insertWidget(1, score, 0, Qt::AlignRight);
@@ -46,7 +48,7 @@ void QGameBoard::notify()
     //     score->setText(QString("You hit 2048, congratulations! Keep playing to increase your score.\t\t SCORE: %1").arg(game->getScore()));
     // else
     //     score->setText(QString("SCORE: %1").arg(game->getBoard()->getScore()));
-    score->setText(QString("积分: %1   合成次数: %1   最高合成数: %1").arg(game->getBoard()->getScore()).
+    score->setText(QString("积分: %1   合成次数: %2   最大合成数: %3").arg(game->getBoard()->getScore()).
                    arg(game->getBoard()->getCount()).
                    arg(game->getBoard()->getBest()));
     drawBoard();
@@ -124,7 +126,7 @@ void QGameBoard::resetGame()
 {
     game->restart();
     drawBoard();
-    score->setText(QString("积分: %1   合成次数: %1   最高合成数: %1").arg(game->getBoard()->getScore()).
+    score->setText(QString("积分: %1   合成次数: %2   最大合成数: %3").arg(game->getBoard()->getScore()).
                    arg(game->getBoard()->getCount()).
                    arg(game->getBoard()->getBest()));
 }
