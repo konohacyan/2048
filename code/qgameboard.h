@@ -22,13 +22,13 @@ class QGameBoard : public QWidget , public Observer
     Q_OBJECT
 public:
     explicit QGameBoard(QWidget *parent = nullptr);
-    void notify() override;
+    void notify() override;     // 观察者通知回调
 
 protected:
     void keyPressEvent(QKeyEvent *event) override;
 
 private:
-    void ChangeTheme();
+    void ChangeTheme(); // 变更主题
 
 signals:
 
@@ -36,7 +36,7 @@ public slots:
     void resetGame();
 
 private:
-    void drawBoard();
+    void drawBoard();   // 绘制棋盘
     QLabel *score;
     GamePtr game;
     QVector<QVector<QTilePtr>> gui_board;

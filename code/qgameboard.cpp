@@ -9,6 +9,8 @@ QGameBoard::QGameBoard(QWidget *parent) : QWidget(parent)
 {
     game = GamePtr::create();
     setWindowTitle("2048面向世界");
+    setWindowIcon(QIcon(":/res/logo.ico"));
+    // 窗口大小
     resize(150 * game->getWidth() , 150 * game->getWidth() + 10);
     mainLayout = new QVBoxLayout();
     setLayout(mainLayout);
@@ -44,6 +46,8 @@ QGameBoard::QGameBoard(QWidget *parent) : QWidget(parent)
 
 void QGameBoard::notify()
 {
+    if (game->isGameOver())
+        resetGame();
     // if (game->isWin())
     //     score->setText(QString("You hit 2048, congratulations! Keep playing to increase your score.\t\t SCORE: %1").arg(game->getScore()));
     // else

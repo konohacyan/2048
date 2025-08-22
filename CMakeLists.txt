@@ -19,16 +19,9 @@ file(GLOB_RECURSE PROJECT_SOURCES
         "code/*.h"
         "code/*.hpp"
         "code/*.ui"
-#        main.cpp
-#        mainwindow.cpp
-#        mainwindow.h
-#        mainwindow.ui
-#        public_def.h
-#        public_def.cpp
-#        public_func.h
-#        public_func.cpp
-#        game.h
-#        game.cpp
+        "*.qrc"
+        "easyloggingpp/easylogging++.h"
+        "easyloggingpp/easylogging++.cc"
         ${TS_FILES}
 )
 
@@ -36,10 +29,10 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(2048
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
-        base_class.h
-        board.h board.cpp
-        qgameboard.h qgameboard.cpp
-        qtile.h qtile.cpp
+        code/base_class.h
+        code/board.h code/board.cpp
+        code/qgameboard.h code/qgameboard.cpp
+        code/qtile.h code/qtile.cpp
     )
 # 为Qt 6的Android目标定义属性：
 #    set_property(TARGET 2048 APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
