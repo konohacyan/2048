@@ -2,6 +2,7 @@
 #include <QLocale>
 #include <QTranslator>
 #include "qgameboard.h"
+#include "logger.h"
 
 int main(int argc, char *argv[])
 {
@@ -21,6 +22,7 @@ int main(int argc, char *argv[])
     srand(time(NULL));
     // MainWindow w;
     // w.show();
+    LOG_INFO("2048","=====GAME START=====");
     QGameBoard gameBoard;
     gameBoard.show();
     return a.exec();
