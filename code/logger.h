@@ -1,12 +1,14 @@
 #pragma once
 
-#include <string>
-#include <fstream>
-#include <mutex>
-#include <chrono>
-#include <ctime>
+#include <QObject>
+#include <QFile>
+#include <QTextStream>
+#include <QDateTime>
+#include <QMutex>
+#include <QMutexLocker>
+#include <QCoreApplication>
+#include <QDir>
 
-// 日志级别枚举
 enum class LogLevel {
     DEBUG,
     INFO,
@@ -15,49 +17,39 @@ enum class LogLevel {
     FATAL
 };
 
-class Logger {
+class QtLogger : public QObject {
+    Q_OBJECT
 private:
-    // 单例实例
-    static Logger* instance;
-    // 日志文件流
-    std::ofstream m_logFile;
-    // 当前日期
-    std::string m_currentDate;
-    // 当前日志文件名
-    std::string m_currentFileName;
-    // 互斥锁保证线程安全
-    std::mutex m_mtx;
-    // 基础文件名
-    std::string m_fileName;
-    // 私有构造函数确保单例
-    Logger(const std::string& fileName);
-    // 析构函数
-    ~Logger();
+    static QtLogger* instance;
+    QFile m_logFile;
+    QString m_currentDate;
+    QString m_logName;
+    QMutex m_mutex;
 
-    // 获取当前时间字符串
-    std::string getCurrentTime();
-    // 将日志级别转换为字符串
-    std::string levelToString(LogLevel level);
-    // 创建日志目录
-    void createLogDirectory();
-    // 检查是否需要切换日志文件(按日期)
+    explicit QtLogger(const QString& logName = "2048", QObject* parent = nullptr);
+    ~QtLogger();
+
+    QString getCurrentTime() const;
+    QString levelToString(LogLevel level) const;
+    void ensureLogDirectory() const;
     void checkAndSwitchLogFile();
 
 public:
-    // 禁止拷贝构造和赋值
-    Logger(const Logger&) = delete;
-    Logger& operator=(const Logger&) = delete;
+    QtLogger(const QtLogger&) = delete;
+    QtLogger& operator=(const QtLogger&) = delete;
 
-    // 获取单例实例
-    static Logger* getInstance(const std::string& fileName = "log");
-
-    // 写入日志
-    void log(LogLevel level, const std::string& file, int line, const char* format, ...);
+    static QtLogger* getInstance(const QString& logName = "2048");
+    void log(LogLevel level, const char* file, int line, const QString& message);
 };
 
-// 带文件名参数的日志宏
-#define LOG_DEBUG(fileName, format, ...) Logger::getInstance(fileName)->log(LogLevel::DEBUG, __FILE__, __LINE__, format, ##__VA_ARGS__)
-#define LOG_INFO(fileName, format, ...)  Logger::getInstance(fileName)->log(LogLevel::INFO,  __FILE__, __LINE__, format, ##__VA_ARGS__)
-#define LOG_WARN(fileName, format, ...)  Logger::getInstance(fileName)->log(LogLevel::WARNING,  __FILE__, __LINE__, format, ##__VA_ARGS__)
-#define LOG_ERROR(fileName, format, ...) Logger::getInstance(fileName)->log(LogLevel::ERROR_, __FILE__, __LINE__, format, ##__VA_ARGS__)
-#define LOG_FATAL(fileName, format, ...) Logger::getInstance(fileName)->log(LogLevel::FATAL, __FILE__, __LINE__, format, ##__VA_ARGS__)
+// 简化后的日志宏（无需每次指定日志名称）
+#define LOG_DEBUG(format, ...) \
+QtLogger::getInstance()->log(LogLevel::DEBUG, __FILE__, __LINE__, QString::asprintf(format, ##__VA_ARGS__))
+#define LOG_INFO(format, ...) \
+        QtLogger::getInstance()->log(LogLevel::INFO, __FILE__, __LINE__, QString::asprintf(format, ##__VA_ARGS__))
+#define LOG_WARN(format, ...) \
+        QtLogger::getInstance()->log(LogLevel::WARNING, __FILE__, __LINE__, QString::asprintf(format, ##__VA_ARGS__))
+#define LOG_ERROR(format, ...) \
+        QtLogger::getInstance()->log(LogLevel::ERROR_, __FILE__, __LINE__, QString::asprintf(format, ##__VA_ARGS__))
+#define LOG_FATAL(format, ...) \
+        QtLogger::getInstance()->log(LogLevel::FATAL, __FILE__, __LINE__, QString::asprintf(format, ##__VA_ARGS__))

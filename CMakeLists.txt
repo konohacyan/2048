@@ -20,8 +20,6 @@ file(GLOB_RECURSE PROJECT_SOURCES
         "code/*.hpp"
         "code/*.ui"
         "*.qrc"
-        "easyloggingpp/easylogging++.h"
-        "easyloggingpp/easylogging++.cc"
         ${TS_FILES}
 )
 

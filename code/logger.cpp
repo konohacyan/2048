@@ -1,182 +1,106 @@
 #include "logger.h"
-#include <cstdarg>
-#include <cstdio>
-#include <iostream>
-#include <sys/stat.h>  // 用于C++11的目录创建
-#include <sys/types.h> // 用于目录创建
-#ifdef _WIN32
-#include <direct.h>    // Windows下的目录创建
-#endif
+#include <QDebug>
 
-// 初始化静态成员
-Logger* Logger::instance = nullptr;
+QtLogger* QtLogger::instance = nullptr;
 
-Logger::Logger(const std::string& fileName) : m_fileName(fileName) {
-    createLogDirectory();
+QtLogger::QtLogger(const QString& logName, QObject* parent)
+    : QObject(parent), m_logName(logName) {
+    ensureLogDirectory();
     checkAndSwitchLogFile();
 }
 
-Logger::~Logger() {
-    if (m_logFile.is_open()) {
+QtLogger::~QtLogger() {
+    if (m_logFile.isOpen()) {
         m_logFile.close();
     }
 }
 
-Logger* Logger::getInstance(const std::string& fileName) {
-    static std::mutex instanceMutex;
-    std::lock_guard<std::mutex> lock(instanceMutex);
+QtLogger* QtLogger::getInstance(const QString& logName) {
+    static QMutex instanceMutex;
+    QMutexLocker lock(&instanceMutex);
 
-    if (instance == nullptr) {
-        instance = new Logger(fileName);
-    }
-    else if (!fileName.empty() && instance->m_fileName != fileName) {
-        // 如果文件名不同，删除旧实例创建新实例
+    if (!instance) {
+        instance = new QtLogger(logName, QCoreApplication::instance());
+    } else if (!logName.isEmpty() && instance->m_logName != logName) {
         delete instance;
-        instance = new Logger(fileName);
+        instance = new QtLogger(logName, QCoreApplication::instance());
     }
 
     return instance;
 }
 
-std::string Logger::getCurrentTime() {
-    auto now = std::chrono::system_clock::now();
-    auto now_c = std::chrono::system_clock::to_time_t(now);
-
-    // 获取毫秒部分
-    auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(
-        now.time_since_epoch() % std::chrono::seconds(1)
-    ).count();
-
-    std::tm local_tm;
-#ifdef _MSC_VER  // Windows平台使用安全函数
-    localtime_s(&local_tm, &now_c);
-#else  // Linux/macOS平台使用线程安全版本
-    localtime_r(&now_c, &local_tm);
-#endif
-
-    char time_str[32];
-    std::strftime(time_str, sizeof(time_str), "%Y-%m-%d_%H:%M:%S", &local_tm);
-
-    // 拼接毫秒
-    char result[40];
-    std::snprintf(result, sizeof(result), "%s.%03d", time_str, static_cast<int>(ms));
-    return result;
+QString QtLogger::getCurrentTime() const {
+    return QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz");
 }
 
-std::string Logger::levelToString(LogLevel level) {
+QString QtLogger::levelToString(LogLevel level) const {
     switch (level) {
-    case LogLevel::DEBUG: return "DEBUG";
-    case LogLevel::INFO:  return "INFO ";
-    case LogLevel::WARNING: return "WARN ";
-    case LogLevel::ERROR_: return "ERROR";  // 修复枚举与字符串的匹配
-    case LogLevel::FATAL: return "FATAL";
-    default: return "UNKNOWN";
+        case LogLevel::DEBUG:   return "DEBUG";
+        case LogLevel::INFO:    return "INFO ";
+        case LogLevel::WARNING: return "WARN ";
+        case LogLevel::ERROR_:  return "ERROR";
+        case LogLevel::FATAL:   return "FATAL";
+        default:                return "UNKNOWN";
     }
 }
 
-// C++11兼容的目录创建函数
-void Logger::createLogDirectory() {
-    const std::string dir = "log";
-#ifdef _WIN32
-    if (_access(dir.c_str(), 0) == -1) {  // 检查目录是否存在
-        if (_mkdir(dir.c_str()) == -1) {   // 创建目录
-            std::cerr << "创建日志目录失败" << std::endl;
+void QtLogger::ensureLogDirectory() const {
+    QDir logDir("logs");
+    if (!logDir.exists()) {
+        if (!logDir.mkpath(".")) {
+            qWarning() << "Failed to create log directory";
         }
     }
-#else
-    struct stat info;
-    if (stat(dir.c_str(), &info) != 0) {  // 检查目录是否存在
-        if (mkdir(dir.c_str(), 0755) == -1) {  // 创建目录
-            std::cerr << "创建日志目录失败" << std::endl;
-        }
-    } else if (!(info.st_mode & S_IFDIR)) {  // 检查是否为目录
-        std::cerr << "log不是一个目录" << std::endl;
-    }
-#endif
 }
 
-void Logger::checkAndSwitchLogFile() {
-    // 获取当前时间
-    auto now = std::chrono::system_clock::now();
-    auto now_c = std::chrono::system_clock::to_time_t(now);
+void QtLogger::checkAndSwitchLogFile() {
+    QString currentDate = QDateTime::currentDateTime().toString("yyyy-MM-dd");
 
-    std::tm local_tm;
-#ifdef _MSC_VER  // Windows平台使用安全函数
-    localtime_s(&local_tm, &now_c);
-#else  // Linux/macOS平台使用线程安全版本
-    localtime_r(&now_c, &local_tm);
-#endif
+    if (currentDate != m_currentDate || !m_logFile.isOpen()) {
+        QMutexLocker lock(&m_mutex);
+        m_currentDate = currentDate;
 
-    char date_str[16];
-    std::strftime(date_str, sizeof(date_str), "%Y-%m-%d", &local_tm);
-    std::string current_date = date_str;
-
-    // 如果日期变化或文件未打开，则切换日志文件
-    if (current_date != m_currentDate || !m_logFile.is_open()) {
-        m_currentDate = current_date;
-        // 关闭当前文件(如果已打开)
-        if (m_logFile.is_open()) {
+        if (m_logFile.isOpen()) {
             m_logFile.close();
         }
 
-        // 确保log目录存在
-        createLogDirectory();
+        ensureLogDirectory();
 
-        // 生成新的日志文件
-        std::string filename = "log/" + current_date + "_" + m_fileName + ".txt";
-        // 以追加模式打开，确保UTF-8编码写入
-        m_logFile.open(filename, std::ios::app | std::ios::out);
+        QString fileName = QString("logs/%1_%2.log").arg(currentDate).arg(m_logName);
+        m_logFile.setFileName(fileName);
 
-        if (!m_logFile.is_open()) {
-            std::cerr << "无法打开日志文件: " << filename << std::endl;
+        if (!m_logFile.open(QIODevice::WriteOnly | QIODevice::Append | QIODevice::Text)) {
+            qWarning() << "Cannot open log file:" << fileName;
+            return;
         }
     }
 }
 
-void Logger::log(LogLevel level, const std::string& file, int line, const char* format, ...) {
-    std::lock_guard<std::mutex> lock(m_mtx);
-
-    // 检查是否需要切换日志文件
+void QtLogger::log(LogLevel level, const char* file, int line, const QString& message) {
+    QMutexLocker lock(&m_mutex);
     checkAndSwitchLogFile();
 
-    if (!m_logFile.is_open()) {
+    if (!m_logFile.isOpen()) {
         return;
     }
 
-    // 获取当前时间
-    std::string timeStr = getCurrentTime();
+    // 提取文件名（不含路径）
+    QString fileName = QFileInfo(file).fileName();
+    QString logLine = QString("[%1 %2 %3:%4] %5\n")
+                              .arg(getCurrentTime())
+                              .arg(levelToString(level))
+                              .arg(fileName)
+                              .arg(line)
+                              .arg(message);
 
-    // 获取日志级别字符串
-    std::string levelStr = levelToString(level);
+    QTextStream stream(&m_logFile);
+    stream << logLine;
+    stream.flush();
 
-    // 格式化日志消息
-    va_list args;
-    va_start(args, format);
+    // 同时输出到控制台（Qt内部已处理线程安全）
+    qDebug().noquote() << logLine.trimmed();
 
-    // 先计算消息所需大小
-    int msgSize = vsnprintf(nullptr, 0, format, args) + 1;
-    va_end(args);
-
-    // 分配缓冲区并格式化消息
-    char* msgBuffer = new char[msgSize];
-    va_start(args, format);
-    vsnprintf(msgBuffer, msgSize, format, args);
-    va_end(args);
-
-    std::string message(msgBuffer);
-    delete[] msgBuffer;
-
-    // 获取文件名(去掉路径部分)
-    size_t lastSlash = file.find_last_of("/\\");
-    std::string fileName = (lastSlash == std::string::npos) ? file : file.substr(lastSlash + 1);
-
-    // 构建日志行
-    std::string logLine = "[" + timeStr + " " + levelStr + " " + fileName + ":" + std::to_string(line) + "] " + message + "\n";
-
-    // 写入日志文件
-    m_logFile << logLine;
-    m_logFile.flush();  // 强制刷新，确保日志及时写入
-
-    // 同时输出到控制台
-    std::cout << logLine;
+    if (level == LogLevel::FATAL) {
+        abort();
+    }
 }

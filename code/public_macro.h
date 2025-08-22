@@ -1,6 +1,7 @@
 #ifndef PUBLIC_MACRO_H
 #define PUBLIC_MACRO_H
-#include "../easyloggingpp/easylogging++.h"
+
+// #include "../easyloggingpp/easylogging++.h"
 
 #define VERSION_NUMBER  "0.2"    //当前版本号
 
@@ -18,7 +19,7 @@
 #define DAY ((__DATE__ [4] == ' ' ? 0 : __DATE__ [4] - '0') * 10 \
     + (__DATE__ [5] - '0'))
 
-
+/*
 // 日志初始化
 #define ELOG_INIT(logName) \
 do { \
@@ -51,5 +52,6 @@ do { \
 #define ELOG_FATAL(message)     LOG(FATAL) << (std::string(message))
 // 跟踪
 #define ELOG_TRACE(message)     LOG(TRACE) << (std::string(message))
+*/
 
 #endif// PUBLIC_MACRO_H
