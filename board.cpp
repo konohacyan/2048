@@ -283,6 +283,8 @@ void Board::handleCollision(const int &i, const int &j)
     dataInfo.atTile(i,j)->upgrade();
     dataInfo.atTile(i,j)->setUpgratedThisMove(true);
     dataInfo.score += dataInfo.atValue(i,j);
+    dataInfo.count ++;
+    dataInfo.best = dataInfo.atValue(i,j) > dataInfo.best ? dataInfo.atValue(i,j) : dataInfo.best;
 }
 
 void Board::prepareForNextMove()

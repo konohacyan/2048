@@ -46,7 +46,9 @@ void QGameBoard::notify()
     //     score->setText(QString("You hit 2048, congratulations! Keep playing to increase your score.\t\t SCORE: %1").arg(game->getScore()));
     // else
     //     score->setText(QString("SCORE: %1").arg(game->getBoard()->getScore()));
-
+    score->setText(QString("积分: %1   合成次数: %1   最高合成数: %1").arg(game->getBoard()->getScore()).
+                   arg(game->getBoard()->getCount()).
+                   arg(game->getBoard()->getBest()));
     drawBoard();
 }
 
@@ -122,7 +124,9 @@ void QGameBoard::resetGame()
 {
     game->restart();
     drawBoard();
-    score->setText(QString("SCORE: %1").arg(game->getBoard()->getScore()));
+    score->setText(QString("积分: %1   合成次数: %1   最高合成数: %1").arg(game->getBoard()->getScore()).
+                   arg(game->getBoard()->getCount()).
+                   arg(game->getBoard()->getBest()));
 }
 
 void QGameBoard::drawBoard()
