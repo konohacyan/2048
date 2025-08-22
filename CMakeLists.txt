@@ -14,17 +14,21 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets LinguistTools)
 
 set(TS_FILES 2048_zh_CN.ts)
 
-set(PROJECT_SOURCES
-        main.cpp
-        mainwindow.cpp
-        mainwindow.h
-        mainwindow.ui
-        public_def.h
-        public_def.cpp
-        public_func.h
-        public_func.cpp
-        game.h
-        game.cpp
+file(GLOB_RECURSE PROJECT_SOURCES
+        "code/*.cpp"
+        "code/*.h"
+        "code/*.hpp"
+        "code/*.ui"
+#        main.cpp
+#        mainwindow.cpp
+#        mainwindow.h
+#        mainwindow.ui
+#        public_def.h
+#        public_def.cpp
+#        public_func.h
+#        public_func.cpp
+#        game.h
+#        game.cpp
         ${TS_FILES}
 )
 
