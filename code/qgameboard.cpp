@@ -4,6 +4,7 @@
 #include <QKeyEvent>
 #include "public_def.h"
 #include "board.h"
+#include <QIcon>
 
 QGameBoard::QGameBoard(QWidget *parent) : QWidget(parent)
 {
@@ -14,6 +15,7 @@ QGameBoard::QGameBoard(QWidget *parent) : QWidget(parent)
     resize(150 * game->getWidth() , 150 * game->getWidth() + 10);
     mainLayout = new QVBoxLayout();
     setLayout(mainLayout);
+    setMinimumSize(800,800);
 
     boardLayout = nullptr;
 
